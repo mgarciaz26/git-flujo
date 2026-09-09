@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flujo de Git del ERP - Manual del equipo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ccircle cx='11' cy='11' r='3' fill='none' stroke='white' stroke-width='2'/%3E%3Ccircle cx='11' cy='22' r='3' fill='none' stroke='white' stroke-width='2'/%3E%3Ccircle cx='22' cy='13' r='3' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M11 14v5M22 16c0 4-5 3.5-8 4.2' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --font-head:'Sora','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Consolas,'Courier New',monospace;
+  --bg:#f4f6fb;--surface:#ffffff;--surface2:#edf1f8;--border:#e2e8f0;
+  --text:#0f172a;--muted:#5b6b84;--accent:#2563eb;--accent-weak:#dbeafe;
+  --accent-text:#ffffff;
+  --feat:#059669;--feat-bg:#d1fae5;--feat-border:#6ee7b7;
+  --fix:#c77408;--fix-bg:#fef3c7;--fix-border:#fcd34d;
+  --danger:#dc2626;--danger-bg:#fee2e2;--danger-border:#fca5a5;
+  --qa:#7c3aed;--qa-bg:#ede9fe;--qa-border:#c4b5fd;
+  --develop:#2563eb;--develop-bg:#dbeafe;--develop-border:#93c5fd;
+  --main:#dc2626;--main-bg:#fee2e2;--main-border:#fca5a5;
+  --code-bg:#0f172a;--code-text:#e2e8f0;--code-chip:#1e293b;
+  --shadow:0 1px 3px rgba(15,23,42,.08),0 10px 28px rgba(15,23,42,.07);
+  --radius:14px;
+}
+[data-theme="dark"]{
+  --bg:#0b1220;--surface:#101a30;--surface2:#16223d;--border:#243455;
+  --text:#e2e8f0;--muted:#94a3b8;--accent:#60a5fa;--accent-weak:#1e3557;
+  --accent-text:#0b1220;
+  --feat:#34d399;--feat-bg:#0d3a2c;--feat-border:#0d9488;
+  --fix:#fbbf24;--fix-bg:#46320f;--fix-border:#b45309;
+  --danger:#f87171;--danger-bg:#4a1521;--danger-border:#b91c1c;
+  --qa:#c4b5fd;--qa-bg:#2d2457;--qa-border:#6d28d9;
+  --develop:#60a5fa;--develop-bg:#17324f;--develop-border:#1d4ed8;
+  --main:#f87171;--main-bg:#431320;--main-border:#991b1b;
+  --code-bg:#060a14;--code-text:#dbe7f5;--code-chip:#16213a;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 12px 32px rgba(0,0,0,.35);
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-head);line-height:1.25}
+.muted{color:var(--muted)}
+.icon{width:18px;height:18px;flex:none;vertical-align:-3px}
+.icon.sm{width:15px;height:15px}
+header.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;background:var(--surface);background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;font-family:var(--font-head)}
+.brand .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--qa));display:grid;place-items:center;color:#fff}
+.brand .logo svg{width:18px;height:18px}
+.topbar .actions{display:flex;gap:8px}
+button{font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text);padding:8px 14px;border-radius:9px;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+button:hover{border-color:var(--accent);color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-text)}
+button.primary:hover{filter:brightness(1.08);color:var(--accent-text)}
+.layout{display:flex;gap:26px;max-width:1280px;margin:0 auto;padding:28px 24px 80px;align-items:flex-start}
+.sidebar{position:sticky;top:76px;width:300px;flex:none;max-height:calc(100vh - 100px);overflow:auto}
+main{flex:1;min-width:0}
+nav.index.sidebar .grid{display:flex;flex-direction:column}
+.gtitle{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin:14px 4px 6px}
+nav.index .gtitle:first-of-type{margin-top:0}
+section{scroll-margin-top:76px}
+.hero{border-radius:18px;padding:42px 36px;background:linear-gradient(135deg,var(--surface) 30%,var(--accent-weak));border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:34px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-70px;top:-70px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,var(--accent-weak) 0%,transparent 70%);pointer-events:none}
+.hero h1{font-size:2.1rem;letter-spacing:-.02em;margin-bottom:10px;font-weight:800}
+.hero p{color:var(--muted);max-width:700px}
+.hero .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.chip{font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.chip b{color:var(--text)}
+nav.index{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:34px}
+nav.index h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px}
+nav.index .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+nav.index a{display:flex;align-items:center;gap:9px;color:var(--text);text-decoration:none;padding:9px 12px;border-radius:9px;font-size:14.5px;font-weight:500}
+nav.index a span.num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--surface2);color:var(--accent);font-weight:700;font-size:12px;flex:none}
+nav.index a:hover{background:var(--accent-weak);color:var(--accent)}
+nav.index a:hover span.num{background:var(--accent);color:var(--accent-text)}
+section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 32px;margin-bottom:26px}
+section h2{font-size:1.45rem;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;margin-bottom:6px;font-weight:700}
+section h2 .num{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--accent);color:var(--accent-text);font-size:16px;flex:none;font-family:var(--font-body)}
+section .lead{color:var(--muted);margin-bottom:18px}
+h3{font-size:1.08rem;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
+p{margin:10px 0}
+ul,ol{margin:10px 0 10px 22px}
+li{margin:5px 0}
+strong{font-weight:650}
+a{color:var(--accent)}
+.flowfig{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:10px 6px 2px;margin:18px 0}
+.flowfig svg{width:100%;height:auto;display:block}
+.flowfig figcaption{font-size:13px;color:var(--muted);padding:8px 14px 12px;display:flex;align-items:center;gap:7px}
+.fl-node{fill:var(--surface);stroke-width:2.5}
+.fl-text{fill:var(--text);font-family:var(--font-body);font-size:15px;font-weight:700}
+.fl-sub{fill:var(--muted);font-family:var(--font-body);font-size:12px}
+.fl-edge{fill:none;stroke:#8fa1bd;stroke-width:2}
+.fl-label{fill:var(--accent);font-family:var(--font-body);font-size:12.5px;font-weight:700}
+.c-feat{stroke:var(--feat)}.c-fix{stroke:var(--fix)}.c-dev{stroke:var(--develop)}.c-qa{stroke:var(--qa)}.c-main{stroke:var(--main)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;vertical-align:middle;white-space:nowrap}
+.badge.feat{background:var(--feat-bg);color:var(--feat);border:1px solid var(--feat-border)}
+.badge.feat-solid{background:var(--feat);color:#fff}
+.badge.fix{background:var(--fix-bg);color:var(--fix);border:1px solid var(--fix-border)}
+.badge.fix-solid{background:var(--fix);color:#fff}
+.badge.neutral{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.badge.main-b{background:var(--main-bg);color:var(--main);border:1px solid var(--main-border)}
+.badge.qa-b{background:var(--qa-bg);color:var(--qa);border:1px solid var(--qa-border)}
+.badge.dev-b{background:var(--develop-bg);color:var(--develop);border:1px solid var(--develop-border)}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px}
+th,td{text-align:left;padding:10px 12px;border:1px solid var(--border);vertical-align:top}
+th{background:var(--surface2);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+pre{background:var(--code-bg);color:var(--code-text);border-radius:12px;padding:16px 18px;overflow:auto;font-size:13.5px;line-height:1.6;margin:14px 0;font-family:var(--font-mono)}
+pre .comment-line{display:block;color:#7f93b0;font-style:italic}
+.callout{border-radius:12px;padding:14px 18px;margin:14px 0;font-size:14.5px}
+.callout.warn{background:var(--danger-bg);border-left:4px solid var(--danger);color:var(--text)}
+.callout.info{background:var(--accent-weak);border-left:4px solid var(--accent);color:var(--text)}
+.callout .ctitle{display:flex;align-items:center;gap:7px;font-weight:700;margin-bottom:2px}
+.steps{counter-reset:step;list-style:none;margin-left:0}
+.steps>li{counter-increment:step;position:relative;padding-left:40px;margin:12px 0}
+.steps>li::before{content:counter(step);position:absolute;left:0;top:1px;width:26px;height:26px;border-radius:8px;background:var(--accent-weak);color:var(--accent);font-weight:700;font-size:13px;display:grid;place-items:center}
+.inline{display:inline-block;background:var(--code-chip);border:1px solid var(--border);border-radius:6px;padding:1px 7px;font-family:var(--font-mono);font-size:12.5px;color:var(--code-text);white-space:nowrap}
+.flowbox .inline,td .inline,.msg .inline{white-space:normal;overflow-wrap:anywhere}
+.skill-pill{display:inline-flex;align-items:center;gap:7px;background:var(--accent-weak);border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-weight:700;font-size:13px;color:var(--accent)}
+.skill-pill::before{content:"\25B6";font-size:10px}
+.flowbox{border:1px dashed var(--border);border-radius:12px;padding:18px 20px;margin:14px 0;background:var(--surface2)}
+.flowbox h4{font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.route{display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:4px 11px;font-size:13px;font-weight:600;color:var(--text);font-family:var(--font-mono);max-width:100%}
+.route .arrow{color:var(--accent);font-weight:800}
+.dialog{display:flex;flex-direction:column;gap:12px;margin:14px 0}
+.msg{border-radius:12px;padding:11px 14px;font-size:14.5px;max-width:88%}
+.msg .who{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.msg.user{align-self:flex-start;background:var(--surface2);border:1px solid var(--border)}
+.msg.user .who{color:var(--muted)}
+.msg.ai{align-self:flex-end;background:var(--accent-weak);border:1px solid var(--border)}
+.msg.ai .who{color:var(--accent)}
+.msg.ai .confirm{display:flex;align-items:flex-start;gap:7px;margin-top:8px;font-weight:700;color:var(--fix)}
+.skillcard{border:1px solid var(--border);border-radius:var(--radius);margin:16px 0;overflow:hidden;background:var(--surface)}
+.skillcard .head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 18px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.skillcard .body{padding:4px 18px 14px}
+.skillcard .route-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;align-items:center}
+.howlist{margin:8px 0 0 22px}
+.howlist li{margin:4px 0;font-size:14.5px}
+.scenario{border:1px solid var(--border);border-radius:var(--radius);margin:18px 0;overflow:hidden}
+.scenario .shead{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--surface2)}
+.scenario .sbody{padding:14px 18px}
+.tick{font-weight:700;font-size:13px;padding:3px 9px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono)}
+footer{margin-top:34px;color:var(--muted);font-size:13px;text-align:center}
+.status-ok{color:var(--feat)}.status-no{color:var(--danger)}
+.progress{position:fixed;top:0;left:0;right:0;height:4px;z-index:120;display:none;background:transparent}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--qa));transition:width .25s}
+.slide-controls{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:100;display:none;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:999px;padding:8px 14px}
+.slide-controls button{padding:6px 12px}
+.scroll-hint{position:fixed;left:50%;transform:translateX(-50%);bottom:76px;z-index:100;display:none;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:999px;padding:5px 14px;font-size:12.5px;color:var(--muted);font-weight:600}
+body.presenting .scroll-hint.show{display:block}
+.slide-count{font-size:13px;color:var(--muted);font-weight:700;min-width:56px;text-align:center}
+.slide-hint{font-size:12px;color:var(--muted)}
+details{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin:10px 0}
+details summary{cursor:pointer;font-weight:700}
+details summary:hover{color:var(--accent)}
+details pre{margin:10px 0 4px}
+#slideExit{font-weight:700}
+body.presenting{overflow:hidden}
+body.presenting header.topbar{display:none}
+body.presenting .hero{display:none}
+body.presenting nav.index{display:none}
+body.presenting .progress{display:block}
+body.presenting main{max-width:none;padding:0}
+body.presenting main>section{display:none}
+body.presenting main>section.slide-active{display:block;height:100vh;height:100dvh;overflow:auto;background:transparent;border:none;box-shadow:none;border-radius:0;font-size:1.06rem;padding:56px clamp(20px,8vw,170px) 120px}
+body.presenting main>section.slide-active h2{font-size:2.4rem}
+body.presenting main>section.slide-active .lead{font-size:1.2rem}
+body.presenting .slide-controls{display:flex}
+body.presenting .layout{display:block;max-width:none;padding:0}
+body.presenting .sidebar{display:none}
+@media print{header.topbar,body.presenting .slide-controls,nav.index,.progress{display:none}section{break-inside:avoid;box-shadow:none}}
+@media (max-width:640px){.topbar .actions{flex-wrap:wrap}section{padding:22px 18px}.msg{max-width:100%}.slide-hint{display:none}}
+@media (max-width:960px){.layout{flex-direction:column;padding:20px 16px 60px}.sidebar{position:static;width:100%;max-height:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="8" r="2.4"/><path d="M6 8.4v7.2M18 10.4c0 4.5-5.5 4.2-9.2 5"/></svg></span><span>Flujo de Git del ERP</span></div>
+  <div class="actions">
+    <button id="presentBtn"><svg class="icon sm" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Ver presentación</button>
+    <button id="themeBtn"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13A8 8 0 1 1 11 4a6.5 6.5 0 0 0 9 9z"/></svg>Tema claro/oscuro</button>
+  </div>
+</header>
+<div class="progress"><div id="progressBar"></div></div>
+
+<div class="layout">
+  <nav class="index sidebar">
+    <h2>Índice</h2>
+    <div class="gtitle">Configuración</div>
+    <div class="grid">
+      <a href="#empezar"><span class="num">00</span>Empieza aquí</a>
+      <a href="#bloqueo"><span class="num">03</span>Bloqueo de main y qa</a>
+      <a href="#instalacion"><span class="num">04</span>Dónde viven los skills</a>
+      <a href="#crearlo"><span class="num">08</span>Crear un skill</a>
+    </div>
+    <div class="gtitle">Trabajo diario</div>
+    <div class="grid">
+      <a href="#flujo"><span class="num">01</span>El flujo y sus reglas</a>
+      <a href="#equipo"><span class="num">02</span>Equipo y roles</a>
+      <a href="#skills"><span class="num">05</span>Usar cada skill</a>
+      <a href="#frases"><span class="num">07</span>Frases listas</a>
+      <a href="#checklist"><span class="num">11</span>Ciclo de 6 pasos</a>
+    </div>
+    <div class="gtitle">Escenarios</div>
+    <div class="grid">
+      <a href="#escenarios"><span class="num">06</span>Casos reales</a>
+    </div>
+    <div class="gtitle">Referencia</div>
+    <div class="grid">
+      <a href="#comandos"><span class="num">09</span>Comandos git</a>
+      <a href="#errores"><span class="num">10</span>Errores comunes</a>
+      <a href="#glosario"><span class="num">12</span>Glosario</a>
+    </div>
+  </nav>
+
+<main>
+
+  <div class="hero">
+    <h1>Manual de trabajo con Git y GitHub</h1>
+    <p>Guía interna del equipo: requerimientos y soportes diarios con <strong>Claude</strong> (modelo Sonnet). Aquí aprenderás exactamente qué escribirle, qué hará paso a paso, y en qué punto te pedirá confirmación de "de dónde" a "dónde" viaja cada cambio.</p>
+    <div class="chips">
+      <span class="chip"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3 2.9-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.8 14.4c2.2.3 3.8 1.6 4.5 4.1"/></svg>Equipo: <b>8 devs</b> · <b>3 QA</b></span>
+      <span class="chip"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>2 ramas protegidas: <b>main</b> y <b>qa</b></span>
+      <span class="chip"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8l-5-5z"/><path d="M14 3v5h4"/></svg>Formularios: <b>frmPedidoVenta</b> <b>frmCajaChica</b> …</span>
+      <span class="chip"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Siempre pide <b>confirmación</b></span>
+      <span class="chip"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg>Modelo: <b>Claude Sonnet</b></span>
+    </div>
+  </div>
+
+
+  <section id="empezar">
+    <h2><span class="num">00</span>Empieza aquí: de cero a funcionando</h2>
+    <p class="lead">Si no sabes nada de Git ni de skills, sigue estos pasos en orden, sin saltarte ninguno. Al final tendrás todo funcionando.</p>
+    <ol class="steps">
+      <li><strong>Reúne lo necesario</strong> (pídelo al encargado si te falta algo):
+        <ul>
+          <li>Git instalado → comprueba con <span class="inline">git --version</span> en la terminal.</li>
+          <li>GitHub CLI → comprueba con <span class="inline">gh --version</span>; si falta, instálalo y corre <span class="inline">gh auth login</span>.</li>
+          <li>Claude con modelo Sonnet (comando <span class="inline">/model</span> para elegirlo).</li>
+          <li>La URL del repo del ERP y tu usuario de GitHub con acceso.</li>
+        </ul>
+        Éxito: los dos comandos de versión responden sin error.</li>
+      <li><strong>Clona el repo y entra a la carpeta:</strong>
+        <pre>git clone &lt;url-del-repo&gt;
+cd &lt;carpeta-del-repo&gt;</pre>
+        Éxito: ves los archivos del ERP listando la carpeta.</li>
+      <li><strong>Crea los skills</strong> (elige UNA opción):
+        <ul>
+          <li><strong>A · Copiar:</strong> copia la carpeta <span class="inline">.claude/</span> del <span class="inline">git-flujo.zip</span> a la raíz del repo.</li>
+          <li><strong>B · Pegar en terminal:</strong> copia TODO el <span class="inline">crear-skills.ps1</span>, pégalo en PowerShell en la raíz y pulsa Enter.</li>
+          <li><strong>C · Regenerar:</strong> usa los prompts de la sección 08 para crearlos desde cero.</li>
+        </ul>
+        Éxito: existe <span class="inline">.claude/skills/nueva-tarea/SKILL.md</span> (y los otros 4).</li>
+      <li><strong>Abre Claude en la carpeta y verifica:</strong> escribe <span class="inline">hola, ¿qué skills tienes disponibles?</span> → debe listar los 5. Luego prueba sin miedo: <span class="inline">nueva tarea para el requerimiento ERP-999 prueba</span> → debe crear <span class="inline">feature/erp-999-prueba</span> pidiendo confirmación.</li>
+      <li><strong>Crea las ramas (admin, una sola vez):</strong>
+        <pre>git checkout -b develop
+git push -u origin develop
+git checkout -b qa
+git push -u origin qa</pre></li>
+      <li><strong>Aplica la protección (admin, una sola vez):</strong> sigue la sección 03 para bloquear <span class="inline">main</span> y <span class="inline">qa</span>. Éxito: si un desarrollador intenta pushear a <span class="inline">main</span>, GitHub lo rechaza por rama protegida.</li>
+    </ol>
+    <div class="callout info">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>¿Cómo sé que todo funcionó?</span>
+      Marca esta lista: rama de prueba creada · commit con código TGE-PROD · PR con etiqueta requerimiento/soporte · main bloqueada para devs. Si algo falla, vuelve al paso indicado: casi siempre es gh sin login o Claude abierto fuera de la carpeta del repo.
+    </div>
+  </section>
+
+  <section id="flujo">
+    <h2><span class="num">01</span>El flujo y sus reglas</h2>
+    <p class="lead">Cada cambio nace en su propia rama <span class="inline">feature/</span> (requerimiento) o <span class="inline">fix/</span> (soporte), lleva el código de su documento de pase como título del commit y solo sube de nivel pasando por cada regla. Este es el mapa completo:</p>
+    <figure class="flowfig">
+      <svg viewBox="0 0 960 360" role="img" aria-label="Diagrama del flujo de ramas">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#8fa1bd"></path>
+          </marker>
+        </defs>
+        <rect class="fl-node c-feat" x="20" y="66" width="200" height="58" rx="12"></rect>
+        <text class="fl-text" x="120" y="90" text-anchor="middle">feature/erp-101-…</text>
+        <text class="fl-sub" x="120" y="109" text-anchor="middle">requerimiento</text>
+        <rect class="fl-node c-fix" x="20" y="236" width="200" height="58" rx="12"></rect>
+        <text class="fl-text" x="120" y="260" text-anchor="middle">fix/erp-102-…</text>
+        <text class="fl-sub" x="120" y="279" text-anchor="middle">soporte</text>
+        <rect class="fl-node c-dev" x="400" y="151" width="160" height="60" rx="12"></rect>
+        <text class="fl-text" x="480" y="176" text-anchor="middle">develop</text>
+        <text class="fl-sub" x="480" y="195" text-anchor="middle">integración</text>
+        <rect class="fl-node c-qa" x="730" y="51" width="200" height="58" rx="12"></rect>
+        <text class="fl-text" x="830" y="75" text-anchor="middle">qa · pruebas</text>
+        <text class="fl-sub" x="830" y="94" text-anchor="middle">solo fusiona QA</text>
+        <rect class="fl-node c-main" x="730" y="251" width="200" height="58" rx="12"></rect>
+        <text class="fl-text" x="830" y="275" text-anchor="middle">main · producción</text>
+        <text class="fl-sub" x="830" y="294" text-anchor="middle">solo fusionan Gestores</text>
+        <path class="fl-edge" d="M220 95 C300 95 320 160 398 168" marker-end="url(#arr)"></path>
+        <text class="fl-label" x="292" y="118">PR</text>
+        <path class="fl-edge" d="M220 265 C300 265 320 200 398 192" marker-end="url(#arr)"></path>
+        <text class="fl-label" x="292" y="252">PR</text>
+        <path class="fl-edge" d="M560 165 C640 165 650 92 728 84" marker-end="url(#arr)"></path>
+        <text class="fl-label" x="618" y="112">PR a qa</text>
+        <path class="fl-edge" d="M560 197 C640 197 650 268 728 276" marker-end="url(#arr)"></path>
+        <text class="fl-label" x="618" y="252">Release</text>
+      </svg>
+      <figcaption><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Las ramas con candado (<span class="inline">main</span> y <span class="inline">qa</span>) solo se tocan por Pull Request y solo las fusionan sus responsables.</figcaption>
+    </figure>
+    <div class="callout info">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>Regla de oro</span>
+      Nadie sube ni fusiona directo en <span class="inline">main</span> ni en <span class="inline">qa</span>: lo bloquea GitHub. Todo viaja por Pull Request y Claude siempre te mostrará el recorrido <span class="route">desde … <span class="arrow">→</span> hacia …</span> y te pedirá confirmación antes de ejecutar. El bloqueo se configura como indica la sección 03.
+    </div>
+    <div class="callout info">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>El código es la trazabilidad</span>
+      Cada pase tiene su documento con un código correlativo (<span class="inline">TGE-PROD-20260907-000004</span>) generado ANTES del commit por el aplicativo de documentación. Ese código es el título del commit y un tag sobre él: viaja con el commit al fusionarlo a <span class="inline">develop</span>, <span class="inline">qa</span> y <span class="inline">main</span>, así que en cualquier rama el código resuelve a los mismos archivos (<span class="inline">git show &lt;codigo&gt;</span>).
+    </div>
+  </section>
+
+  <section id="equipo">
+    <h2><span class="num">02</span>Equipo y roles</h2>
+    <p class="lead">Quién es cada quién y qué ramas puede tocar.</p>
+    <table>
+      <tr><th>Rol</th><th>Integrantes</th><th>Trabaja en</th><th>Fusiona PRs en</th><th>Sin acceso</th></tr>
+      <tr>
+        <td><strong>Desarrollador</strong></td>
+        <td>Isaac Vargas, Jan Morales, Cristian Polo, Luis Barreto</td>
+        <td><span class="badge feat">feature/*</span> <span class="badge fix">fix/*</span></td>
+        <td><span class="badge dev-b">develop</span></td>
+        <td><span class="badge main-b">main</span> <span class="badge qa-b">qa</span></td>
+      </tr>
+      <tr>
+        <td><strong>Gestor (Aprobador)</strong><br><span class="muted">también desarrolla</span></td>
+        <td>Wilmer Moscol, Marlon García, Jorge Salas, Víctor Roldán<br><span class="muted">Jefe de Desarrollo y Mantenimiento</span></td>
+        <td><span class="badge feat">feature/*</span> <span class="badge fix">fix/*</span></td>
+        <td><span class="badge dev-b">develop</span> <span class="badge main-b">main</span></td>
+        <td><span class="badge qa-b">qa</span></td>
+      </tr>
+      <tr>
+        <td><strong>QA</strong></td>
+        <td>Randy Correa, Luis Castro, Ronald Salazar<br><span class="muted">Jefe de Negocios</span></td>
+        <td><span class="badge neutral">—</span></td>
+        <td><span class="badge qa-b">qa</span></td>
+        <td><span class="badge dev-b">develop</span> <span class="badge main-b">main</span></td>
+      </tr>
+      <tr>
+        <td><strong>Publicador</strong></td>
+        <td>Pase Producción</td>
+        <td><span class="badge neutral">—</span></td>
+        <td><span class="badge neutral">—</span></td>
+        <td><span class="muted">solo descarga main y publica</span></td>
+      </tr>
+    </table>
+    <div class="callout warn">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.1"/></svg>Ojo</span>
+      Que un desarrollador no pueda tocar <span class="inline">main</span> no es un hábito: es una configuración de GitHub (branch protection) que se aplica una sola vez, como se explica en la sección 03. En <span class="inline">qa</span> solo entran los usuarios del equipo QA.
+    </div>
+  </section>
+
+  <section id="bloqueo">
+    <h2><span class="num">03</span>Cómo se bloquea main y qa</h2>
+    <p class="lead">Lo hace el admin del repositorio, una sola vez. Esta es la configuración que impide técnicamente que un desarrollador publique en <span class="inline">main</span>.</p>
+    <ol class="steps">
+      <li><strong>Abrir las reglas:</strong> en el repositorio de GitHub ir a <span class="inline">Settings → Branches → Add branch protection rule</span>.</li>
+      <li><strong>Regla para <span class="inline">main</span>:</strong> en "Branch name pattern" escribir <span class="inline">main</span> y activar:
+        <ul>
+          <li><span class="inline">Require a pull request before merging</span> (nadie sube directo).</li>
+          <li><span class="inline">Restrict who can push to matching branches</span> y agregar como autorizados a los 4 gestores: Wilmer Moscol, Marlon García, Jorge Salas y Víctor Roldán (se agregan por su usuario de GitHub).</li>
+          <li><span class="inline">Enforce admins</span> (ni siquiera un admin salta la regla).</li>
+        </ul>
+        Guardar con <span class="inline">Create</span>.</li>
+      <li><strong>Regla para <span class="inline">qa</span>:</strong> repetir lo mismo con pattern <span class="inline">qa</span>, autorizando solo al equipo QA: Randy Correa, Luis Castro y Ronald Salazar.</li>
+      <li><strong>Regla para <span class="inline">develop</span>:</strong> pattern <span class="inline">develop</span>, activar solo <span class="inline">Require a pull request before merging</span> (sin lista de autorizados, para que cualquier desarrollador pueda fusionar ahí).</li>
+    </ol>
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>Efecto: qué le pasa a un desarrollador</h3>
+    <table>
+      <tr><th>Si intenta…</th><th>GitHub responde</th></tr>
+      <tr><td><span class="inline">git push</span> directo a <span class="inline">main</span></td><td><svg class="icon sm status-no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg> Rechazado: rama protegida.</td></tr>
+      <tr><td>Abrir un Pull Request hacia <span class="inline">main</span></td><td><svg class="icon sm status-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg> Puede crearlo, pero <strong>solo un Gestor</strong> puede fusionarlo.</td></tr>
+      <tr><td><span class="inline">git push</span> o fusionar en <span class="inline">qa</span></td><td><svg class="icon sm status-no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg> Rechazado: solo el equipo QA.</td></tr>
+      <tr><td>Trabajar en <span class="inline">feature/</span>, <span class="inline">fix/</span> y fusionar en <span class="inline">develop</span></td><td><svg class="icon sm status-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg> Permitido: es su espacio de trabajo.</td></tr>
+    </table>
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3 2.9-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.8 14.4c2.2.3 3.8 1.6 4.5 4.1"/></svg>Cómo funcionan las aprobaciones</h3>
+    <p>GitHub no tiene un "rol de aprobador" como tal: combina dos niveles. El <strong>permiso del repo</strong> (todos tienen <span class="inline">Write</span>; sin eso ni siquiera podrían subir sus <span class="inline">feature/</span>) y la <strong>lista blanca por rama</strong> (solo los usuarios de la lista pueden fusionar en <span class="inline">main</span> o <span class="inline">qa</span>). La lista se configura <strong>por persona</strong> (su usuario de GitHub) o por <strong>equipo</strong>.</p>
+    <p><strong>Basta que UN gestor fusione:</strong> cualquiera de los 4 (Wilmer, Marlon, Jorge, Víctor) puede aprobar el release; no se exige que lo aprueben los 4. Un desarrollador puede crear el PR, pero GitHub le bloquea el botón de fusionar. El aprobador no necesita ningún permiso especial: con <span class="inline">Write</span> + estar en la lista blanca de <span class="inline">main</span> es suficiente.</p>
+    <div class="flowbox"><h4>Variante estricta (opcional, a futuro)</h4><ul>
+      <li><strong>Aprobaciones requeridas:</strong> exigir 1 visto bueno de otra persona además del gestor que fusiona.</li>
+      <li><strong>CODEOWNERS:</strong> archivo que asigna revisores automáticamente según carpetas del repo.</li>
+      <li><strong>Equipos:</strong> con organización en GitHub, crea los equipos <span class="inline">Gestores</span> y <span class="inline">QA</span> y usa el equipo en la regla: cuando entre o salga gente solo tocas el equipo, no las reglas.</li>
+    </ul></div>
+    <div class="callout info">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9l3 3 7-7"/></svg>Alternativa con comandos</span>
+      En la carpeta <span class="inline">github/</span> van los archivos <span class="inline">proteccion-main.json</span>, <span class="inline">proteccion-develop.json</span> y <span class="inline">proteccion-qa.json</span> con estas mismas reglas, más los comandos en <span class="inline">INSTALAR.txt</span> (paso 4, opción B). Hay que reemplazar los usuarios de ejemplo por los usuarios reales de GitHub.
+    </div>
+  </section>
+
+  <section id="instalacion">
+    <h2><span class="num">04</span>Dónde viven los skills y cómo se activan</h2>
+    <p class="lead">Los 5 skills no se instalan con un programa: son archivos que se copian a la raíz del repo del ERP. Esta es su ubicación exacta.</p>
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8l-5-5z"/><path d="M14 3v5h4"/></svg>Estructura de archivos en el repo</h3>
+    <pre>ERP/  (raíz del repositorio)
+├── .claude/
+│   ├── settings.json                    <span class="comment-line"># permisos: deja correr git y gh sin preguntar</span>
+│   └── skills/
+│       ├── nueva-tarea/SKILL.md         <span class="comment-line"># crea la rama feature/ o fix/</span>
+│       ├── escribir-commit/SKILL.md     <span class="comment-line"># commit con título = código TGE-PROD + tag local</span>
+│       ├── promover/SKILL.md            <span class="comment-line"># push de rama + tag y PR a develop o qa</span>
+│       └── release/SKILL.md             <span class="comment-line"># PR de develop a main agrupando pases (Gestor)</span>
+└── .github/
+    └── PULL_REQUEST_TEMPLATE.md         <span class="comment-line"># plantilla que marca requerimiento/soporte</span></pre>
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Cómo se activan (3 pasos)</h3>
+    <ol class="steps">
+      <li><strong>Copiar</strong> la carpeta <span class="inline">.claude/</span> (con <span class="inline">settings.json</span> y sus 4 skills) y la carpeta <span class="inline">.github/</span> a la raíz del repo (vienen en el <span class="inline">git-flujo.zip</span>).</li>
+      <li><strong>Abrir Claude dentro de la carpeta del repo.</strong> Los skills se detectan solos: cada <span class="inline">SKILL.md</span> trae una descripción y Claude la lee para saber cuándo usarlo (ej.: si escribes "nueva tarea", activa <span class="inline">nueva-tarea</span>).</li>
+      <li><strong>Reiniciar Claude</strong> después de copiar o agregar un skill, para que cargue la configuración nueva.</li>
+    </ol>
+    <div class="callout info">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9l3 3 7-7"/></svg>Atajo: crear los skills pegando en terminal</span>
+      Si prefieres no copiar carpetas, abre una terminal PowerShell en la raíz del repo, copia <strong>todo</strong> el contenido del archivo <span class="inline">crear-skills.ps1</span> del paquete, pégalo y pulsa Enter: los 4 skills y el <span class="inline">settings.json</span> se crean solos con su contenido exacto.
+    </div>
+    <div class="callout info">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Formato nativo de Claude</span>
+      Esta carpeta ya viene en formato nativo de Claude (<span class="inline">.claude/skills</span> + <span class="inline">settings.json</span> con permisos de git y gh y <span class="inline">allowed-tools</span> en cada skill): no hay que convertir nada, solo copiar.
+    </div>
+    <table>
+      <tr><th>Skill</th><th>Archivo</th><th>Se activa cuando escribes…</th></tr>
+      <tr><td><span class="skill-pill">nueva-tarea</span></td><td><span class="inline">.claude/skills/nueva-tarea/SKILL.md</span></td><td>"nueva tarea", "crear rama", "empezar requerimiento/soporte", "ERP-101"</td></tr>
+      <tr><td><span class="skill-pill">escribir-commit</span></td><td><span class="inline">.claude/skills/escribir-commit/SKILL.md</span></td><td>"commit", "commitea", "commit de mis cambios"</td></tr>
+      <tr><td><span class="skill-pill">promover</span></td><td><span class="inline">.claude/skills/promover/SKILL.md</span></td><td>"promueve", "pasar a develop", "crear PR", "pasar a qa"</td></tr>
+      <tr><td><span class="skill-pill">release</span></td><td><span class="inline">.claude/skills/release/SKILL.md</span></td><td>"release", "publicar a main", "pasar a producción" (solo Gestor)</td></tr>
+      <tr><td><span class="skill-pill">publicar</span></td><td><span class="inline">.claude/skills/publicar/SKILL.md</span></td><td>"qué hay nuevo en main", "descargar release" (solo Pase Producción)</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>Para el admin</span>
+      El paso a paso completo (GitHub CLI, crear ramas <span class="inline">develop</span>/<span class="inline">qa</span>, protección de ramas y permisos por persona) está en el archivo <span class="inline">INSTALAR.txt</span> del paquete.
+    </div>
+  </section>
+
+  <section id="skills">
+    <h2><span class="num">05</span>Cómo usar cada skill paso a paso</h2>
+    <p class="lead">Cinco skills cubren todo el ciclo, del desarrollador al publicador. En cada tarjeta: qué escribir, qué hará Claude y dónde te pedirá <strong>confirmación</strong>.</p>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg>Los 5 skills de Claude</h3>
+
+    <div class="skillcard">
+      <div class="head"><span class="skill-pill">nueva-tarea</span> <span class="badge feat">requerimiento</span> <span class="badge fix">soporte</span> <span class="muted">crea la rama de trabajo</span></div>
+      <div class="body">
+        <p><strong>Qué hará, en orden:</strong></p>
+        <ol class="steps">
+          <li>Detecta el tipo: requerimiento (<span class="inline">feature/</span>) o soporte (<span class="inline">fix/</span>) y te pide el ID del ticket si no lo tienes.</li>
+          <li>Verifica que no tengas cambios sin commitear.</li>
+          <li>Se para en <span class="inline">develop</span> y la actualiza (<span class="inline">git pull</span>).</li>
+          <li>Te muestra el recorrido exacto y <strong>te pide confirmación</strong>:</li>
+        </ol>
+        <div class="route-row">
+          <span class="route">desde develop <span class="arrow">→</span> crear y publicar la rama <span class="arrow">→</span> origin/feature/erp-101-…</span>
+        </div>
+        <p><strong>Reglas del nombre:</strong> <span class="inline">feature/</span> o <span class="inline">fix/</span> + ID + descripción en minúsculas, sin acentos y con guiones (ej.: <span class="inline">fix/erp-102-arqueo-caja-chica</span>).</p>
+        <p><strong>Ejemplo 1 · Requerimiento:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Tú</span>nueva tarea para el requerimiento ERP-101, RUC en Pedido de Venta</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Tipo detectado: <span class="badge feat">requerimiento</span>. Voy a crear la rama <span class="inline">feature/erp-101-ruc-pedido-venta</span> desde <span class="inline">develop</span> y publicarla en GitHub.
+            <span class="route">desde develop <span class="arrow">→</span> crear y publicar <span class="arrow">→</span> origin/feature/erp-101-ruc-pedido-venta</span>
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de crear y publicar esta rama? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Tú</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: rama <span class="inline">feature/erp-101-ruc-pedido-venta</span> creada y publicada. Ya puedes trabajar con ella en Visual Studio.</div>
+        </div>
+        <p><strong>Ejemplo 2 · Soporte:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Tú</span>nueva tarea para el soporte ERP-102, error en arqueo de caja chica</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Tipo detectado: <span class="badge fix">soporte</span>. Voy a crear la rama <span class="inline">fix/erp-102-arqueo-caja-chica</span> desde <span class="inline">develop</span> y publicarla en GitHub.
+            <span class="route">desde develop <span class="arrow">→</span> crear y publicar <span class="arrow">→</span> origin/fix/erp-102-arqueo-caja-chica</span>
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de crear y publicar esta rama? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Tú</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: rama <span class="inline">fix/erp-102-arqueo-caja-chica</span> creada y publicada. Abre <span class="inline">frmCajaChica.cs</span> en Visual Studio con esa rama activa; al terminar, arma el documento en el aplicativo para obtener el código TGE-PROD y commitea con <span class="inline">escribir-commit</span>.</div>
+        </div>
+        <div class="flowbox"><h4>Casos especiales que también maneja</h4><ul>
+          <li><strong>Sin ID de ticket:</strong> te lo pide; si no lo tienes, genera uno con la fecha (ej. <span class="inline">ERP-20260909-1</span>) y te avisa para reemplazarlo por el real.</li>
+          <li><strong>Empezaste a modificar sin crear la rama:</strong> te ofrece 3 salidas: <strong>guardar tus cambios a un lado</strong> (como en un bloc de notas), crear la rama y devolverlos (recomendado); <strong>deshacer los cambios</strong> (te muestra la lista exacta y pide confirmación, es irreversible); o <strong>detenerse</strong> sin tocar nada.</li>
+          <li><strong>Tipo ambiguo:</strong> si tu pedido no deja claro si es requerimiento o soporte, te pregunta antes de crear nada.</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="skillcard">
+      <div class="head"><span class="skill-pill">escribir-commit</span> <span class="badge neutral">título = código TGE-PROD · crea el tag local</span></div>
+      <div class="body">
+        <p><strong>Qué hará, en orden:</strong></p>
+        <ol class="steps">
+          <li>Revisa <span class="inline">git status</span> y analiza el diff de los formularios cambiados.</li>
+          <li>Te pide el <strong>código del documento de pase</strong> (obligatorio): será el <strong>título del commit</strong>. Si aún no lo tienes, te muestra la lista de archivos para que armes el documento en el aplicativo y vuelvas con el código.</li>
+          <li>Lee Tipo y Ticket de tu rama (<span class="inline">feature/</span> → requerimiento, <span class="inline">fix/</span> → soporte) y redacta con IA la descripción + lista de archivos.</li>
+          <li>Propone mensaje y <strong>te pide confirmación</strong>. <strong>Jamás hace push.</strong> Tras commitear, crea el <strong>tag local</strong> con el mismo código (segunda confirmación).</li>
+        </ol>
+        <div class="route-row"><span class="route">cambios en tu carpeta <span class="arrow">→</span> commit local con título TGE-PROD-… <span class="arrow">→</span> tag local (no sube nada)</span></div>
+        <p><strong>Ejemplo 1 · Requerimiento con código:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Tú</span>commit de mis cambios</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Detecto los archivos: <span class="inline">frmPedidoVenta.cs</span>, <span class="inline">frmPedidoVenta.Designer.cs</span>. ¿Cuál es el código del documento de pase para este cambio?
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>Dime el código TGE-PROD-… (obligatorio; si aún no lo tienes, arma el documento en el aplicativo con estos archivos)</span>
+          </div>
+          <div class="msg user"><span class="who">Tú</span>TGE-PROD-20260907-000004</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Voy a crear el commit con título <span class="inline">TGE-PROD-20260907-000004</span> (Tipo: requerimiento, Ticket: ERP-101) y descripción generada del diff, solo local, sin push.
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de hacer este commit con el código TGE-PROD-20260907-000004 en la rama feature/erp-101-ruc-pedido-venta? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Tú</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: commit creado y tag local <span class="inline">TGE-PROD-20260907-000004</span> creado. Cuando termines, usa <span class="inline">promover</span> (pusheará rama + tag).</div>
+        </div>
+        <p><strong>Ejemplo 2 · Soporte:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Tú</span>tengo el código TGE-PROD-20260907-000005</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Estás en <span class="inline">fix/erp-102-arqueo-caja-chica</span>. Detecto el archivo: <span class="inline">frmCajaChica.cs</span>. Voy a crear el commit con título <span class="inline">TGE-PROD-20260907-000005</span> (Tipo: soporte, Ticket: ERP-102), solo local, sin push.
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de hacer este commit con el código TGE-PROD-20260907-000005 en la rama fix/erp-102-arqueo-caja-chica? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Tú</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: commit creado en <span class="inline">fix/erp-102-arqueo-caja-chica</span> con su tag local. Cuando termines el soporte, usa <span class="inline">promover</span>.</div>
+        </div>
+        <div class="flowbox"><h4>Casos especiales que también maneja</h4><ul>
+          <li><strong>Sin cambios:</strong> te avisa "no hay nada para commitear" y termina sin hacer nada.</li>
+          <li><strong>Código ya usado como tag:</strong> se detiene (el documento podría estar duplicado) y te pide otro código.</li>
+          <li><strong>Archivos bin/, obj/ o .vs/:</strong> los ignora y te avisa para que no ensucien el commit.</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="skillcard">
+      <div class="head"><span class="skill-pill">promover</span> <span class="badge dev-b">develop</span> <span class="badge qa-b">qa</span> <span class="muted">sube tu rama + su tag y crea el PR</span></div>
+      <div class="body">
+        <p><strong>Qué hará, en orden:</strong></p>
+        <ol class="steps">
+          <li>Verifica que estés en una rama <span class="inline">feature/</span> o <span class="inline">fix/</span> y que no haya cambios sin commitear.</li>
+          <li>Detecta el <strong>código del pase</strong> (tag local creado por <span class="inline">escribir-commit</span>). Sin código no hay trazabilidad: te manda a commitear con código primero.</li>
+          <li>Te pregunta el destino: <strong>develop</strong> (entrega normal) o <strong>qa</strong> (pruebas). Actualiza tu rama con <span class="inline">develop</span> si hace falta.</li>
+          <li>Pushea <strong>rama + tag juntos</strong> y crea el PR con el código en el título; <strong>te pide confirmación</strong> para pushear y para crear el PR.</li>
+        </ol>
+        <div class="route-row">
+          <span class="route">desde feature/fix/erp-102-… + tag TGE-PROD-… <span class="arrow">→</span> hacia develop <span class="arrow">o</span> hacia qa</span>
+        </div>
+        <p><strong>Ejemplo 1 · Soporte a develop:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Tú</span>promueve el soporte ERP-102 a develop</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Tu rama trae 1 commit nuevo contra <span class="inline">develop</span> y está al día. Código del pase detectado: <span class="inline">TGE-PROD-20260907-000005</span>. Voy a subir <span class="inline">fix/erp-102-arqueo-caja-chica</span> + su tag y crear el PR hacia <span class="inline">develop</span> (etiqueta: <span class="badge fix">Soporte</span>).
+            <span class="route">desde fix/erp-102-arqueo-caja-chica + tag TGE-PROD-20260907-000005 <span class="arrow">→</span> hacia develop</span>
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de pushear fix/erp-102-arqueo-caja-chica y su tag TGE-PROD-20260907-000005? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Tú</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: rama + tag publicados y PR <span class="inline">[ERP-102] … (soporte) · TGE-PROD-20260907-000005</span> creado. Puede fusionarlo cualquier desarrollador.</div>
+        </div>
+        <p><strong>Ejemplo 2 · Requerimiento a develop:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Tú</span>promueve el requerimiento ERP-101 a develop</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Voy a subir <span class="inline">feature/erp-101-ruc-pedido-venta</span> + su tag <span class="inline">TGE-PROD-20260907-000004</span> y crear el PR hacia <span class="inline">develop</span> (etiqueta: <span class="badge feat">Requerimiento</span>).
+            <span class="route">desde feature/erp-101-ruc-pedido-venta + tag TGE-PROD-20260907-000004 <span class="arrow">→</span> hacia develop</span>
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de pushear tu rama y su tag, y crear el PR de feature/erp-101-ruc-pedido-venta hacia develop? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Tú</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: rama + tag publicados y PR creado con la descripción del conjunto de commits. Puede fusionarlo cualquier desarrollador.</div>
+        </div>
+        <p><strong>Ejemplo 3 · A qa para pruebas:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Tú</span>pasa el soporte ERP-102 a qa para pruebas</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Voy a crear el PR de <span class="inline">fix/erp-102-arqueo-caja-chica</span> hacia <span class="inline">qa</span> (etiqueta: <span class="badge fix">Soporte</span>).
+            <span class="route">desde fix/erp-102-arqueo-caja-chica <span class="arrow">→</span> hacia qa</span>
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de crear el PR de fix/erp-102-arqueo-caja-chica hacia qa? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Tú</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: PR creado hacia <span class="inline">qa</span>. Solo el equipo QA (Randy, Luis, Ronald) puede fusionarlo.</div>
+        </div>
+        <div class="flowbox"><h4>Casos especiales que también maneja</h4><ul>
+          <li><strong>Sin commits nuevos contra el destino:</strong> te avisa "no hay nada que promover" y no crea ningún PR.</li>
+          <li><strong>Sin tag de pase en la punta:</strong> se detiene y te pide commitear con <span class="inline">escribir-commit</span> usando el código TGE-PROD del documento.</li>
+          <li><strong>Cambios sin commitear:</strong> se detiene y te pide usar primero <span class="inline">escribir-commit</span>.</li>
+          <li><strong>Tu rama está desactualizada:</strong> trae lo nuevo de <span class="inline">develop</span> a tu rama antes del push (con tu confirmación) para evitar conflictos en el PR.</li>
+          <li><strong>No dices el destino:</strong> te pregunta develop o qa (por defecto, develop).</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="skillcard">
+      <div class="head"><span class="skill-pill">release</span> <span class="badge main-b">main</span> <span class="muted">solo Gestores · agrupa los pases ya numerados</span></div>
+      <div class="body">
+        <p><strong>Qué hará, en orden:</strong></p>
+        <ol class="steps">
+          <li>Confirma que quien lo invoca es un <strong>Gestor Aprobador</strong> (Wilmer, Marlon, Jorge o Víctor).</li>
+          <li>Se para en <span class="inline">develop</span>, la actualiza y lista los commits contra <span class="inline">main</span>.</li>
+          <li>Lista los <strong>códigos de pase incluidos</strong> (tags ya publicados en develop que aún no están en main). <strong>No crea ningún código nuevo:</strong> nacen en las tareas.</li>
+          <li>Te muestra el recorrido y <strong>te pide confirmación</strong> antes de crear el PR. Tras el merge, verifica que todos los tags del release quedaron en <span class="inline">main</span>.</li>
+        </ol>
+        <div class="route-row"><span class="route">desde develop <span class="arrow">→</span> hacia main <span class="arrow">→</span> Publicador descarga cada pase por código</span></div>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Gestor</span>crea el release a main</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Confirmado que eres Gestor. Revisé <span class="inline">develop</span> contra <span class="inline">main</span>: hay 2 pases nuevos, <span class="inline">TGE-PROD-20260907-000004</span> (ERP-101, requerimiento) y <span class="inline">TGE-PROD-20260907-000005</span> (ERP-102, soporte).
+            Voy a crear el PR <span class="inline">Release 2026-09-07 (2 pases)</span> de <span class="inline">develop</span> hacia <span class="inline">main</span> con el resumen del conjunto.
+            <span class="route">desde develop <span class="arrow">→</span> hacia main <span class="arrow">→</span> Pase Producción publica pase por pase</span>
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de crear este PR de release? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Gestor</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: PR <span class="inline">Release 2026-09-07 (2 pases)</span> creado. Revísalo, verifica que QA aprobó las pruebas en <span class="inline">qa</span> y fusiónalo (solo tú puedes). Después verifico que ambos tags quedaron en <span class="inline">main</span> y avisa a Pase Producción.</div>
+        </div>
+        <div class="flowbox"><h4>Casos especiales que también maneja</h4><ul>
+          <li><strong>develop sin pases nuevos contra main:</strong> te avisa "no hay nada que publicar" y no crea ningún PR.</li>
+          <li><strong>Quien lo pide no es Gestor:</strong> se detiene, porque los desarrolladores no pueden tocar <span class="inline">main</span>.</li>
+          <li><strong>QA aún no probó el conjunto:</strong> el checklist del PR lo exige antes de fusionar; no se salta ese paso.</li>
+          <li><strong>Un tag del release no quedó en main:</strong> ese pase no debe publicarse aún; se avisa al equipo.</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>El Publicador también tiene skill</h3>
+    <div class="skillcard">
+      <div class="head"><span class="skill-pill">publicar</span> <span class="badge main-b">main</span> <span class="muted">solo Pase Producción · revisa y descarga el release</span></div>
+      <div class="body">
+        <p><strong>Qué hará, en orden:</strong></p>
+        <ol class="steps">
+          <li>Confirma que quien lo invoca es <strong>Pase Producción</strong> (no necesita saber de desarrollo).</li>
+          <li>Se para en <span class="inline">main</span> y trae las referencias <strong>sin descargar nada</strong>, y lista los <strong>pases pendientes</strong> (ej.: tu carpeta en <span class="inline">TGE-PROD-20260907-000003</span>, pendientes <span class="inline">TGE-PROD-20260907-000004</span> y <span class="inline">TGE-PROD-20260907-000005</span>).</li>
+          <li>Te pide el <strong>código del documento de pase</strong> (ej. <span class="inline">TGE-PROD-20260907-000004</span>) y verifica que exista. Si hay 2 pases, el documento manda el orden (primero el menor código).</li>
+          <li>Muestra el contenido de ESE código y <strong>te pide confirmación</strong>; solo entonces lo descarga exacto.</li>
+          <li>Verifica que lo descargado sea IGUAL al código del documento. <strong>No compila ni despliega:</strong> eso lo haces tú a mano.</li>
+        </ol>
+        <div class="route-row"><span class="route">código del documento (TGE-PROD-20260907-000004) <span class="arrow">→</span> desde origin/main <span class="arrow">→</span> descargar hacia tu carpeta</span></div>
+        <p><strong>Ejemplo 1 · Ver qué hay pendiente:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Pase Producción</span>qué hay nuevo en main</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            Tu carpeta está en <span class="inline">TGE-PROD-20260907-000003</span>. Pases pendientes en GitHub: <span class="inline">TGE-PROD-20260907-000004</span> y <span class="inline">TGE-PROD-20260907-000005</span>. Dime el código del documento de pase para mostrarte su contenido.
+          </div>
+        </div>
+        <p><strong>Ejemplo 2 · Descargar por código:</strong></p>
+        <div class="dialog">
+          <div class="msg user"><span class="who">Pase Producción</span>descarga la TGE-PROD-20260907-000004</div>
+          <div class="msg ai"><span class="who">Claude</span>
+            La <span class="inline">TGE-PROD-20260907-000004</span> trae el requerimiento ERP-101: RUC del cliente en pedido de venta. Archivos: <span class="inline">src/Pedidos/frmPedidoVenta.cs</span>, <span class="inline">src/Pedidos/PedidoVentaService.cs</span>.
+            <span class="route">desde origin/main (TGE-PROD-20260907-000004) <span class="arrow">→</span> descargar hacia tu carpeta</span>
+            <span class="confirm"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>¿Estás seguro de descargar TGE-PROD-20260907-000004 de origin/main a tu carpeta? (sí / no)</span>
+          </div>
+          <div class="msg user"><span class="who">Pase Producción</span>sí</div>
+          <div class="msg ai"><span class="who">Claude</span>Listo: tu carpeta está en <span class="inline">TGE-PROD-20260907-000004</span> y coincide con el código del documento. Ya puedes compilar y publicar el ERP.</div>
+        </div>
+        <div class="flowbox"><h4>Casos especiales que también maneja</h4><ul>
+          <li><strong>Ya estás al día:</strong> te avisa "ya estás al día con origin/main" y no descarga nada.</li>
+          <li><strong>El código no existe en GitHub:</strong> los desarrolladores aún no publican ese pase; se detiene sin descargar.</li>
+          <li><strong>El tag descargado no coincide con el documento:</strong> no publiques y avisa al Gestor antes de continuar.</li>
+          <li><strong>Quien lo pide no es Pase Producción:</strong> se detiene.</li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="escenarios">
+    <h2><span class="num">06</span>Escenarios reales de punta a punta</h2>
+    <p class="lead">Tres casos con tus formularios y el recorrido completo de cada cambio, paso a paso y con sus confirmaciones.</p>
+
+    <div class="scenario">
+      <div class="shead">
+        <strong>Escenario A · Requerimiento completo</strong>
+        <span class="badge feat">requerimiento</span>
+        <span class="tick">ERP-101</span>
+        <span class="muted">Mostrar el RUC del cliente en frmPedidoVenta</span>
+      </div>
+      <div class="sbody">
+        <table>
+          <tr><th style="width:20%">Paso</th><th>Qué haces</th><th>Qué pasa / confirmación</th></tr>
+          <tr><td>1. Iniciar</td>
+              <td>Escribes: <span class="inline">nueva tarea para el requerimiento ERP-101, RUC en Pedido de Venta</span></td>
+              <td>Claude crea <span class="inline">feature/erp-101-ruc-pedido-venta</span> desde develop. <span class="badge fix">¿Confirmas?</span></td></tr>
+          <tr><td>2. Trabajar</td>
+              <td>Editas <span class="inline">frmPedidoVenta.cs</span> y <span class="inline">frmPedidoVenta.Designer.cs</span> en Visual Studio</td>
+              <td>Tu rama queda activa; verifica que la barra inferior de VS muestre la rama correcta.</td></tr>
+          <tr><td>3. Documento</td>
+              <td>Abres el aplicativo de documentación: lee tus cambios sin commitear (<span class="inline">git diff --name-only HEAD</span>) y genera el documento + código <span class="inline">TGE-PROD-20260907-000004</span></td>
+              <td>El documento queda con los archivos y los scripts BD bajo ese código.</td></tr>
+          <tr><td>4. Commit</td>
+              <td>Escribes: <span class="inline">tengo el código TGE-PROD-20260907-000004</span></td>
+              <td>Título = el código; cuerpo con Tipo/Ticket + descripción IA. Crea el tag local. <span class="badge fix">¿Confirmas?</span> (local, sin push)</td></tr>
+          <tr><td>5. Entregar</td>
+              <td>Escribes: <span class="inline">promueve el requerimiento ERP-101 a develop</span></td>
+              <td>Push de rama + tag y PR <span class="inline">[ERP-101] … · TGE-PROD-20260907-000004</span> de <span class="route">feature/erp-101-ruc-pedido-venta <span class="arrow">→</span> develop</span>. <span class="badge fix">¿Confirmas?</span></td></tr>
+          <tr><td>6. Aprobar</td>
+              <td>Cualquier desarrollador fusiona el PR</td>
+              <td>El cambio y su tag ya viven en develop.</td></tr>
+          <tr><td>7. Pruebas</td>
+              <td>Alguien pide: <span class="inline">pasa el requerimiento ERP-101 a qa</span></td>
+              <td>PR hacia <span class="route">develop <span class="arrow">→</span> qa</span>; solo el equipo QA (Randy, Luis, Ronald) lo fusiona y prueba en el ambiente QA. El código <span class="inline">TGE-PROD-20260907-000004</span> resuelve a los mismos archivos.</td></tr>
+          <tr><td>8. Release</td>
+              <td>Un Gestor escribe: <span class="inline">crea el release a main</span></td>
+              <td>PR <span class="inline">Release 2026-09-07 (N pases)</span> de <span class="route">develop <span class="arrow">→</span> main</span> con la lista de códigos incluidos. <span class="badge fix">¿Confirmas?</span> (solo un Gestor puede fusionar)</td></tr>
+          <tr><td>9. Publicar</td>
+              <td>Pase Producción: <span class="inline">descarga la TGE-PROD-20260907-000004</span></td>
+              <td>Descarga ese código exacto, compila y publica el ERP.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="shead">
+        <strong>Escenario B · Soporte directo</strong>
+        <span class="badge fix">soporte</span>
+        <span class="tick">ERP-102</span>
+        <span class="muted">frmCajaChica no cuadra el arqueo diario</span>
+      </div>
+      <div class="sbody">
+        <table>
+          <tr><th style="width:20%">Paso</th><th>Qué haces</th><th>Qué pasa / confirmación</th></tr>
+          <tr><td>1. Iniciar</td>
+              <td><span class="inline">nueva tarea para el soporte ERP-102, arqueo de caja chica</span></td>
+              <td>Crea <span class="inline">fix/erp-102-arqueo-caja-chica</span>. <span class="badge fix">¿Confirmas?</span></td></tr>
+          <tr><td>2–4. Documento + commit + entregar</td>
+              <td>Armas el documento en el aplicativo (código <span class="inline">TGE-PROD-20260907-000005</span>), commiteas con ese título y promueves: <span class="inline">promueve el soporte ERP-102 a develop</span></td>
+              <td>Título: <span class="inline">TGE-PROD-20260907-000005</span> + tag local; push de rama + tag y PR con el código visible. <span class="badge fix">¿Confirmas?</span></td></tr>
+          <tr><td>5. Entregar</td>
+              <td><span class="inline">promueve el soporte ERP-102 a develop</span></td>
+              <td>PR de <span class="route">fix/erp-102-arqueo-caja-chica <span class="arrow">→</span> develop</span> con etiqueta <span class="badge fix">Soporte</span> y código <span class="inline">TGE-PROD-20260907-000005</span>. <span class="badge fix">¿Confirmas?</span></td></tr>
+          <tr><td>6. Release urgente</td>
+              <td>Un Gestor pide release solo de ese soporte</td>
+              <td>PR <span class="inline">Release 2026-09-07 (1 pase)</span> <span class="route">develop <span class="arrow">→</span> main</span>. <span class="badge fix">¿Confirmas?</span> Pase Producción descarga el código y publica.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="shead">
+        <strong>Escenario C · Varios cambios de una semana</strong>
+        <span class="badge feat">requerimientos</span>
+        <span class="badge fix">soportes</span>
+        <span class="muted">frmCliente, frmProveedorLista y frmSolicitudPago</span>
+      </div>
+      <div class="sbody">
+        <p>Cada cambio en su rama, cada uno con su documento y su código. Al final se juntan todos en un solo release:</p>
+        <table>
+          <tr><th>Rama</th><th>Formulario</th><th>Cambio</th><th>Código del pase</th><th>Destino</th></tr>
+          <tr><td><span class="badge feat">feature/erp-105-tipo-cliente</span></td><td>frmCliente</td><td>frmCliente.cs · nuevo campo tipo de cliente</td><td><span class="inline">TGE-PROD-20260907-000006</span></td><td>develop</td></tr>
+          <tr><td><span class="badge fix">fix/erp-106-filtro-proveedor</span></td><td>frmProveedorLista</td><td>frmProveedorLista.cs · el filtro por estado no cargaba</td><td><span class="inline">TGE-PROD-20260907-000007</span></td><td>develop</td></tr>
+          <tr><td><span class="badge fix">fix/erp-107-monto-solicitud</span></td><td>frmSolicitudPago</td><td>frmSolicitudPago.cs · la aprobación no permitía reingresar el monto</td><td><span class="inline">TGE-PROD-20260907-000008</span></td><td>develop + qa</td></tr>
+        </table>
+        <p>El Gestor junta todo en el release: <span class="inline">Release 2026-09-07 (3 pases)</span> en un PR de <span class="route">develop <span class="arrow">→</span> main</span> con los 3 códigos listados. Pase Producción descarga cada código en orden y publica.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="frases">
+    <h2><span class="num">07</span>Frases listas para copiar</h2>
+    <p class="lead">Escribe esto a Claude y la herramienta elegirá el skill correcto.</p>
+    <div class="grid2">
+      <div class="flowbox"><h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="8" r="2.4"/><path d="M6 8.4v7.2M18 10.4c0 4.5-5.5 4.2-9.2 5"/></svg>Iniciar</h4><ul>
+        <li><span class="inline">nueva tarea para el requerimiento ERP-101 RUC en Pedido de Venta</span></li>
+        <li><span class="inline">nueva tarea para el soporte ERP-102 arqueo de caja chica</span></li>
+      </ul></div>
+      <div class="flowbox"><h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Trabajar</h4><ul>
+        <li><span class="inline">commit de mis cambios</span></li>
+        <li><span class="inline">tengo el código TGE-PROD-20260907-000004</span></li>
+        <li><span class="inline">commitea sin hacer push</span></li>
+        <li><span class="inline">actualiza mi rama con develop</span></li>
+      </ul></div>
+      <div class="flowbox"><h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6l6 6-6 6"/></svg>Entregar</h4><ul>
+        <li><span class="inline">promueve el requerimiento ERP-101 a develop</span></li>
+        <li><span class="inline">promueve el soporte ERP-102 a develop</span></li>
+        <li><span class="inline">pasa el soporte ERP-102 a qa para pruebas</span></li>
+      </ul></div>
+      <div class="flowbox"><h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V5a1 1 0 0 1 1-1h8l9 9-9 9-9-9z"/><circle cx="8" cy="9" r="1.4"/></svg>Publicar</h4><ul>
+        <li><span class="inline">crea el release a main</span> <span class="muted">(solo Gestores)</span></li>
+        <li><span class="inline">qué hay nuevo en main</span> <span class="muted">(solo Pase Producción)</span></li>
+        <li><span class="inline">descarga el release</span> <span class="muted">(solo Pase Producción)</span></li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section id="crearlo">
+    <h2><span class="num">08</span>Cómo crear un skill desde cero</h2>
+    <p class="lead">Un skill no es magia: es un archivo Markdown con instrucciones claras. Si entiendes su anatomía, puedes crear los tuyos y usarlos en cualquier IA.</p>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8l-5-5z"/><path d="M14 3v5h4"/></svg>Anatomía de un SKILL.md</h3>
+    <pre>---
+name: mi-skill                  <span class="comment-line"># minúsculas con guiones, igual que la carpeta</span>
+description: qué hace + ...     <span class="comment-line"># CUÁNDO se usa + palabras gatillo (la IA lee esto)</span>
+allowed-tools: Bash(git:*)      <span class="comment-line"># opcional: comandos pre-autorizados</span>
+---
+# Título del skill
+Objetivo, reglas, pasos numerados, formatos y confirmaciones.</pre>
+    <p><strong>La clave es <span class="inline">description</span>:</strong> la IA la lee para decidir cuándo activar el skill. Incluye los verbos y frases que dirá el usuario ("crear rama", "commit", "ERP-123"). Sin una buena descripción, el skill existe pero nunca se dispara.</p>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg>Receta en 5 pasos</h3>
+    <ol class="steps">
+      <li><strong>Define la tarea</strong> en una frase: qué entra y qué sale (ej.: "crear la rama feature/fix desde develop y publicarla").</li>
+      <li><strong>Elige las frases gatillo</strong> y ponlas en <span class="inline">description</span> (ej.: "nueva tarea", "crear rama", "ERP-123").</li>
+      <li><strong>Escribe los pasos como órdenes verificables</strong> con comandos exactos (no "actualiza develop", sino <span class="inline">git checkout develop</span> + <span class="inline">git pull origin develop</span>).</li>
+      <li><strong>Fija formatos y confirmaciones:</strong> plantillas de mensajes, rutas "desde → hacia" y la pregunta literal "¿Estás seguro…? (sí / no)" antes de cada acción irreversible.</li>
+      <li><strong>Prueba y ajusta:</strong> abre la IA en el repo, di la frase gatillo y verifica que pida confirmación y muestre la ruta. Si falla, ajusta la descripción o los pasos.</li>
+    </ol>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="8" r="2.4"/><path d="M6 8.4v7.2M18 10.4c0 4.5-5.5 4.2-9.2 5"/></svg>Dónde va según la IA (el contenido es el mismo)</h3>
+    <table>
+      <tr><th>IA</th><th>Ubicación del skill</th></tr>
+      <tr><td>Claude (proyecto)</td><td><span class="inline">.claude/skills/&lt;nombre&gt;/SKILL.md</span></td></tr>
+      <tr><td>Claude (global, todas tus carpetas)</td><td><span class="inline">~/.claude/skills/&lt;nombre&gt;/SKILL.md</span></td></tr>
+    </table>
+    <p>El archivo <span class="inline">SKILL.md</span> sigue el mismo estándar abierto: <strong>solo cambia la carpeta</strong> (proyecto o global). Por eso los 5 skills del paquete funcionan en cualquiera de esas rutas sin reescribirlos.</p>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Plantilla lista para copiar</h3>
+    <p>En el paquete va el archivo <span class="inline">SKILL-PLANTILLA.md</span>: cópialo a <span class="inline">.claude/skills/&lt;nombre&gt;/SKILL.md</span>, rellena los corchetes con tu tarea y reinicia Claude.</p>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9l3 3 7-7"/></svg>Prompts que construyen estos skills</h3>
+    <p>En el paquete va el archivo <span class="inline">PROMPTS-CONSTRUCTORES.md</span>: los 4 prompts listos para pegar a cualquier IA y regenerar cada skill desde cero (contexto del ERP, reglas, formatos y confirmaciones incluidos). Sirve para auditar cómo se construyó cada uno, recrearlos o adaptarlos. Tócalos para desplegarlos:</p>
+    <details>
+      <summary>Contexto compartido (pégalo al inicio de cada prompt)</summary>
+      <pre>Trabajamos un ERP en C# (Visual Studio) con GitHub y Claude (modelo Sonnet).
+Ramas: main (producción, solo Gestores), develop (integración),
+qa (pruebas, solo QA), feature/&lt;ID&gt;-&lt;descripcion&gt; (requerimientos)
+y fix/&lt;ID&gt;-&lt;descripcion&gt; (soportes).
+Todo viaja por Pull Request; nadie pushea directo a main ni a qa.
+Los commits son en español: "&lt;tipo&gt;: [&lt;ID&gt;] &lt;descripcion&gt;"
+(feat = requerimiento, fix = soporte).
+REGLA DE ORO: antes de cada acción irreversible muestra la ruta
+"desde &lt;origen&gt; -&gt; hacia &lt;destino&gt;" y pregunta
+"¿Estas seguro de ...? (si / no)", esperando confirmación explícita.
+Si responde no, se detiene.</pre>
+    </details>
+    <details>
+      <summary>Prompt 1 · Skill nueva-tarea (crea la rama)</summary>
+      <pre>[CONTEXTO COMPARTIDO]
+
+Genera un archivo SKILL.md con este frontmatter exacto:
+- name: nueva-tarea
+- description: explica que crea la rama desde develop, detecta
+  requerimiento (feature/) o soporte (fix/), pide ID y descripción,
+  y SIEMPRE pide confirmación mostrando la ruta. Gatillos: "nueva tarea",
+  "crear rama", "empezar requerimiento", "empezar soporte", "ERP-123".
+- allowed-tools: Bash(git:*), Bash(gh:*)
+
+El cuerpo debe tener: reglas de nombres (minúsculas, sin acentos, guiones;
+1 ejemplo feature/ y 1 fix/) y pasos: 1) determinar tipo (preguntar si es
+ambiguo), 2) pedir ID (formato ERP-&lt;numero&gt;; si no hay, generar
+ERP-YYYYMMDD-N), 3) pedir descripción de 2-4 palabras y el formulario,
+4) verificar árbol limpio (o pedir commitear / git stash),
+5) git checkout develop + git pull origin develop,
+6) mostrar la ruta y pedir confirmación obligatoria,
+7) crear y publicar solo tras confirmar,
+8) resumen final: recordatorio de trabajar en esa rama en Visual Studio
+y de armar el documento en el aplicativo para obtener el código TGE-PROD
+antes de commitear (escribir-commit lo pedirá obligatoriamente).
+Responde SOLO con el contenido del archivo.</pre>
+    </details>
+    <details>
+      <summary>Prompt 2 · Skill escribir-commit (título = código TGE-PROD)</summary>
+<pre>[CONTEXTO COMPARTIDO]
+
+Genera un archivo SKILL.md con este frontmatter exacto:
+- name: escribir-commit
+- description: explica que el TÍTULO de cada commit ES el código del
+  documento de pase (tag TGE-PROD-YYYYMMDD-NNNNNN, obligatorio); si el
+  usuario aún no lo tiene, le muestra la lista de archivos para que arme
+  el documento y vuelva con el correlativo. Arma un cuerpo con Tipo,
+  Ticket, descripción generada por IA y lista de archivos, pide
+  confirmación y tras commitear crea el tag LOCAL (el push del tag lo hace
+  después el skill promover). Gatillos: "commit", "commitea",
+  "tengo el código TGE-PROD".
+- allowed-tools: Bash(git:*)
+
+El cuerpo debe tener: título = código; cuerpo con Tipo (de la rama),
+Ticket (de la rama), descripción IA y Archivos modificados; pasos:
+1) git status, rama y git diff, 2) pedir el código (obligatorio;
+verificar formato y que no exista como tag), 3) Tipo y Ticket de la rama,
+4) descripción IA, 5) proponer título+cuerpo+archivos y pedir
+confirmación obligatoria, 6) git add + git commit -m "&lt;codigo&gt;" -m
+"&lt;cuerpo&gt;", 7) crear el tag local con confirmación,
+8) verificar con git log y git tag --points-at HEAD.
+Reglas: nunca push (ni rama ni tag), nunca commit -am a ciegas, nunca sin
+las dos confirmaciones; el título es SIEMPRE el código.
+Responde SOLO con el contenido del archivo.</pre>
+    </details>
+    <details>
+      <summary>Prompt 3 · Skill promover (push rama + tag y PR a develop o qa)</summary>
+<pre>[CONTEXTO COMPARTIDO]
+
+Genera un archivo SKILL.md con este frontmatter exacto:
+- name: promover
+- description: explica que publica la rama feature/fix junto con su tag de
+  pase (TGE-PROD-YYYYMMDD-NNNNNN) y crea el PR hacia develop (entrega) o qa
+  (pruebas) con el código en el título y descripción autogenerada, muestra
+  la ruta y pide confirmación antes del push y del PR.
+  Gatillos: "promueve", "crear PR", "pasar a develop", "pasar a qa".
+- allowed-tools: Bash(git:*), Bash(gh:*)
+
+El cuerpo debe tener pasos: 1) verificar rama feature/fix,
+2) detectar el código con git tag --points-at HEAD (sin tag, detenerse),
+3) exigir árbol limpio, 4) listar commits contra el destino
+(si vacía, nada que promover), 5) destino develop (defecto) o qa,
+6) actualizar la rama si está detrás,
+7) extraer ID y tipo,
+8) confirmación obligatoria del push con la ruta (rama + tag),
+9) título "[&lt;ID&gt;] &lt;descripcion&gt; (&lt;requerimiento|soporte&gt;) · &lt;codigo&gt;",
+10) plantilla del PR (pase, tipo, ticket, descripción, commits, archivos, pruebas),
+11) confirmación obligatoria del PR y creación con gh pr create con la URL,
+12) no fusionar: indicar quién fusiona según destino.
+Responde SOLO con el contenido del archivo.</pre>
+    </details>
+    <details>
+      <summary>Prompt 4 · Skill release (agrupa pases, solo Gestor)</summary>
+<pre>[CONTEXTO COMPARTIDO]
+
+Genera un archivo SKILL.md con este frontmatter exacto:
+- name: release
+- description: explica que crea el PR de develop hacia main AGRUPANDO los
+  pases ya numerados (cada cambio trae su tag TGE-PROD-YYYYMMDD-NNNNNN; NO
+  crea ningún código nuevo), lista los códigos incluidos y pide
+  confirmación con la ruta. ACLARA que es solo para el Gestor.
+  Gatillos: "release", "publicar a main", "pasar a producción".
+- allowed-tools: Bash(git:*), Bash(gh:*)
+
+El cuerpo debe tener pasos: 1) confirmar rol de Gestor (Wilmer Moscol,
+Marlon Garcia, Jorge Salas, Victor Roldan) o detenerse,
+2) git checkout develop + git pull,
+3) git log origin/main..origin/develop (si vacío, nada que publicar),
+4) clasificar por líneas Tipo:/Ticket: del cuerpo, 5) listar los códigos
+de pase incluidos con git tag --merged origin/develop menos los ya
+presentes en main (NO inventar ninguno),
+6) título "Release &lt;fecha&gt; (&lt;N&gt; pases)",
+7) plantilla (pases con ticket y tipo, requerimientos, soportes, resumen,
+archivos, checklist de qa/compilación/publicador),
+8) confirmación obligatoria con la ruta,
+9) crear con gh pr create y mostrar URL,
+10) tras el merge VERIFICAR que todos los tags quedaron en main
+(git tag --merged main; si falta alguno, detenerse),
+11) avisar a Pase Producción para descargar cada código en orden.
+Responde SOLO con el contenido del archivo.</pre>
+    </details>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.1"/></svg>Cómo nacieron los 5 skills (ejemplo de la receta)</h3>
+    <table>
+      <tr><th>Skill</th><th>Tarea</th><th>Gatillos</th><th>Confirmación</th></tr>
+      <tr><td><span class="skill-pill">nueva-tarea</span></td><td>crear rama feature/fix desde develop y publicarla</td><td>"nueva tarea", "crear rama", "ERP-123"</td><td>ruta develop → origin/rama</td></tr>
+      <tr><td><span class="skill-pill">escribir-commit</span></td><td>commitear con título = código TGE-PROD + crear tag local</td><td>"commit", "tengo el código TGE-PROD"</td><td>código + cuerpo + archivos, sin push (2 confirmaciones)</td></tr>
+      <tr><td><span class="skill-pill">promover</span></td><td>push de rama + tag y PR a develop o qa con el código en el título</td><td>"promueve", "pasar a develop/qa"</td><td>ruta rama + tag → destino (push y PR)</td></tr>
+      <tr><td><span class="skill-pill">release</span></td><td>PR develop → main agrupando los pases ya numerados (Gestor)</td><td>"release", "publicar a main"</td><td>ruta develop → main + lista de códigos</td></tr>
+      <tr><td><span class="skill-pill">publicar</span></td><td>mostrar lo pendiente de main y descargar con confirmación (Pase Producción)</td><td>"qué hay nuevo en main", "descargar release"</td><td>ruta origin/main → carpeta</td></tr>
+    </table>
+  </section>
+
+  <section id="comandos">
+    <h2><span class="num">09</span>Comandos git de referencia</h2>
+    <p class="lead">Para verificar a mano. En el día a día los skills te cubren la mayoría.</p>
+    <table>
+      <tr><th>Comando</th><th>Qué hace</th></tr>
+      <tr><td><span class="inline">git clone &lt;url&gt;</span></td><td>Clona el repositorio por primera vez.</td></tr>
+      <tr><td><span class="inline">git status</span></td><td>Rama actual y archivos modificados.</td></tr>
+      <tr><td><span class="inline">git branch</span></td><td>Lista ramas locales.</td></tr>
+      <tr><td><span class="inline">git branch -a</span></td><td>Ramas locales y remotas.</td></tr>
+      <tr><td><span class="inline">git checkout &lt;rama&gt;</span></td><td>Cambia de rama.</td></tr>
+      <tr><td><span class="inline">git checkout -b feature/erp-101-x</span></td><td>Crea una rama nueva y se para en ella.</td></tr>
+      <tr><td><span class="inline">git pull</span></td><td>Baja cambios de la rama remota.</td></tr>
+      <tr><td><span class="inline">git pull origin develop</span></td><td>Baja develop y la fusiona en tu rama.</td></tr>
+      <tr><td><span class="inline">git add .</span></td><td>Prepara todos los cambios para el commit.</td></tr>
+      <tr><td><span class="inline">git commit -m "TGE-PROD-20260907-000004" -m "Tipo: …"</span></td><td>Crea el commit con el código como título y Tipo/Ticket en el cuerpo.</td></tr>
+      <tr><td><span class="inline">git push</span></td><td>Sube tus commits a la rama remota.</td></tr>
+      <tr><td><span class="inline">git push -u origin &lt;rama&gt;</span></td><td>Sube y deja seguida la rama nueva.</td></tr>
+      <tr><td><span class="inline">git log --oneline</span></td><td>Historial de commits.</td></tr>
+      <tr><td><span class="inline">git log develop..HEAD --oneline</span></td><td>Tus commits que develop no tiene.</td></tr>
+      <tr><td><span class="inline">git diff --name-only HEAD</span></td><td>Archivos cambiados sin commitear (los que el aplicativo de documentación preselecciona para el pase).</td></tr>
+      <tr><td><span class="inline">git diff</span></td><td>Cambios sin commitear, línea por línea.</td></tr>
+      <tr><td><span class="inline">git merge develop</span></td><td>Trae develop a tu rama.</td></tr>
+      <tr><td><span class="inline">git stash</span></td><td>Guarda cambios sin commitear.</td></tr>
+      <tr><td><span class="inline">git tag TGE-PROD-20260907-000004</span></td><td>Crea el tag local del pase sobre el commit actual.</td></tr>
+      <tr><td><span class="inline">git push origin TGE-PROD-20260907-000004</span></td><td>Publica el tag del pase en GitHub.</td></tr>
+      <tr><td><span class="inline">git tag --points-at HEAD</span></td><td>Muestra el código del pase de tu commit actual.</td></tr>
+      <tr><td><span class="inline">git tag --merged origin/develop</span></td><td>Códigos de pase ya publicados en develop.</td></tr>
+      <tr><td><span class="inline">git show TGE-PROD-20260907-000004</span></td><td>Muestra los archivos exactos de ese pase.</td></tr>
+      <tr><td><span class="inline">git checkout TGE-PROD-20260907-000004</span></td><td>Deja tu carpeta con el código exacto de ese pase.</td></tr>
+      <tr><td><span class="inline">git stash pop</span></td><td>Recupera lo guardado.</td></tr>
+    </table>
+  </section>
+
+  <section id="errores">
+    <h2><span class="num">10</span>Errores comunes y cómo salir</h2>
+    <div class="grid2">
+      <div class="flowbox">
+        <h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="8" r="2.4"/><path d="M6 8.4v7.2M18 10.4c0 4.5-5.5 4.2-9.2 5"/></svg>Modifiqué sin crear la rama (olvidé nueva-tarea)</h4>
+        <p>No commitees en <span class="inline">develop</span>: el skill <span class="inline">nueva-tarea</span> te ofrece guardar tus cambios a un lado, crear la rama y devolverlos. A mano sería:</p>
+        <pre>git stash -u
+(nueva-tarea: crea la rama)
+git stash pop</pre>
+      </div>
+      <div class="flowbox">
+        <h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Push rechazado (ahead/behind)</h4>
+        <p>Tu rama quedó detrás de la remota:</p>
+        <pre>git pull
+git push</pre>
+      </div>
+      <div class="flowbox">
+        <h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>Quiero "renombrar" un commit con el código</h4>
+        <p>No se puede: los commits publicados son inmutables (cambiar el mensaje genera otro commit). La forma correcta es el tag del pase: <span class="inline">git tag TGE-PROD-20260907-000004</span> sobre ese commit (si aún está solo en tu máquina, usa <span class="inline">git tag -f</span> para moverlo; si ya se pusheó, NO lo muevas). De ahora en adelante, commitea con el skill <span class="inline">escribir-commit</span>, que pide el código como título y crea el tag solo.</p>
+      </div>
+      <div class="flowbox">
+        <h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.1"/></svg>Conflicto de merge</h4>
+        <p>Dos personas tocaron las mismas líneas. Resuelve dejando el código correcto y luego:</p>
+        <pre>git add .
+git commit -m "TGE-PROD-20260907-000004" -m "resuelve conflicto"</pre>
+      </div>
+      <div class="flowbox">
+        <h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="8" r="2.4"/><path d="M6 8.4v7.2M18 10.4c0 4.5-5.5 4.2-9.2 5"/></svg>Commit en la rama equivocada</h4>
+        <pre>git checkout feature/erp-101-x
+git cherry-pick &lt;hash&gt;</pre>
+      </div>
+      <div class="flowbox">
+        <h4><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8M12 18v2"/></svg>Cambios sueltos y quieres cambiar de rama</h4>
+        <pre>git stash
+git checkout develop
+git stash pop</pre>
+      </div>
+    </div>
+    <div class="callout warn">
+      <span class="ctitle"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>Prohibido</span>
+      Push o merge directo a <span class="inline">main</span> o <span class="inline">qa</span>. Si git te dice "protected branch", es lo esperado: abre el PR y que quien deba lo apruebe.
+    </div>
+  </section>
+
+  <section id="checklist">
+    <h2><span class="num">11</span>Ciclo de 6 pasos de cualquier requerimiento o soporte</h2>
+    <ol class="steps">
+      <li><strong>Empezar.</strong> <span class="skill-pill">nueva-tarea</span> crea tu rama: <span class="inline">feature/</span> o <span class="inline">fix/</span> desde develop.</li>
+      <li><strong>Trabajar</strong> en el formulario, con la rama activa.</li>
+      <li><strong>Documentar.</strong> Arma el documento en el aplicativo (lee tus cambios sin commitear) y obtén el código TGE-PROD del pase.</li>
+      <li><strong>Commitear.</strong> <span class="skill-pill">escribir-commit</span> usa el código como título del commit y crea el tag local.</li>
+      <li><strong>Entregar.</strong> <span class="skill-pill">promover</span> pushea rama + tag y crea el PR a <span class="inline">develop</span> (y a <span class="inline">qa</span> si piden pruebas) con el código en el título.</li>
+      <li><strong>Publicar.</strong> <span class="skill-pill">release</span> agrupa los pases en <span class="inline">main</span> (Gestor); Pase Producción descarga cada código con <span class="skill-pill">publicar</span>, y despliega.</li>
+    </ol>
+    <p>La regla que distingue cada cambio: <span class="badge feat">feature/ = requerimiento</span> y <span class="badge fix">fix/ = soporte</span>. Todo lo demás (commits, PRs, releases) se etiqueta solo. Y siempre, antes de mover algo: <strong>Claude te pregunta si estás seguro y te muestra de dónde a dónde viaja.</strong></p>
+  </section>
+
+  <section id="glosario">
+    <h2><span class="num">12</span>Glosario de términos</h2>
+    <p class="lead">Todas las palabras usadas en este manual, explicadas en simple y con referencia a dónde se usan.</p>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="8" r="2.4"/><path d="M6 8.4v7.2M18 10.4c0 4.5-5.5 4.2-9.2 5"/></svg>Conceptos de Git</h3>
+    <div class="grid2">
+      <div class="flowbox"><h4>Pull Request (PR)</h4><p>Solicitud para fusionar una rama en otra. Es el lugar donde se revisa, se comenta y se aprueba un cambio antes de que entre. Lo crean los skills <span class="inline">promover</span> y <span class="inline">release</span>. Ver sección 05.</p></div>
+      <div class="flowbox"><h4>Rama (branch)</h4><p>Línea de trabajo aislada. Cada requerimiento o soporte vive en su propia rama hasta que se fusiona. Ver sección 01.</p></div>
+      <div class="flowbox"><h4>Commit</h4><p>Foto de un conjunto de cambios con un mensaje que lo describe. Es local hasta que haces push. Aquí el título del commit ES el código del documento de pase (ej. <span class="inline">TGE-PROD-20260907-000004</span>) y el cuerpo lleva Tipo, Ticket y descripción. Lo crea el skill <span class="inline">escribir-commit</span>. Ver sección 05.</p></div>
+      <div class="flowbox"><h4>Push</h4><p>Subir tus commits locales al repositorio remoto (GitHub). Sin push, nadie más ve tu trabajo.</p></div>
+      <div class="flowbox"><h4>Pull</h4><p>Bajar los cambios del remoto y fusionarlos en tu rama actual. Ej.: <span class="inline">git pull</span> en develop antes de crear tu rama.</p></div>
+      <div class="flowbox"><h4>Fetch</h4><p>Bajar los cambios del remoto <strong>sin</strong> fusionarlos: solo actualiza tu copia de referencia para comparar.</p></div>
+      <div class="flowbox"><h4>Merge (fusión)</h4><p>Unir una rama dentro de otra. Ej.: fusionar tu <span class="inline">feature/</span> en <span class="inline">develop</span> al aprobar el PR.</p></div>
+      <div class="flowbox"><h4>Conflicto de merge</h4><p>Ocurre cuando dos personas cambian las mismas líneas. Git marca el archivo y alguien debe elegir el código correcto a mano. Ver sección 10.</p></div>
+      <div class="flowbox"><h4>Diff</h4><p>Las diferencias línea por línea entre dos estados (lo que cambiaste vs. lo commiteado). El skill <span class="inline">escribir-commit</span> lo analiza para redactar el mensaje.</p></div>
+      <div class="flowbox"><h4>Stage (área de preparación)</h4><p>Zona intermedia: con <span class="inline">git add</span> eliges qué archivos entrarán en el próximo commit.</p></div>
+      <div class="flowbox"><h4>Checkout</h4><p>Cambiarse de rama: <span class="inline">git checkout develop</span>. También sirve para crearla con <span class="inline">-b</span>.</p></div>
+      <div class="flowbox"><h4>Stash</h4><p>Guardar tus cambios sin commitear "a un lado" para cambiar de rama, y recuperarlos después con <span class="inline">git stash pop</span>.</p></div>
+      <div class="flowbox"><h4>Cherry-pick</h4><p>Traer un commit puntual de otra rama a la actual (útil si commiteaste en la rama equivocada).</p></div>
+      <div class="flowbox"><h4>origin</h4><p>Nombre del repositorio remoto (GitHub). <span class="inline">origin/develop</span> es "el develop que está en GitHub".</p></div>
+      <div class="flowbox"><h4>HEAD</h4><p>El commit donde estás parado ahora mismo. <span class="inline">develop..HEAD</span> significa "lo que tu rama tiene y develop aún no".</p></div>
+      <div class="flowbox"><h4>Tag (etiqueta)</h4><p>Marca con nombre sobre un commit: aquí es el código del documento de pase, ej. <span class="inline">TGE-PROD-20260907-000004</span> (prefijo + fecha + correlativo: se ordena solo). El skill <span class="inline">escribir-commit</span> lo crea en local sobre el commit y <span class="inline">promover</span> lo publica junto con la rama; el tag viaja con el commit al fusionarlo a <span class="inline">develop</span>, <span class="inline">qa</span> y <span class="inline">main</span>. <span class="inline">publicar</span> descarga por ese código.</p></div>
+      <div class="flowbox"><h4>Release (conjunto de pases)</h4><p>Conjunto de pases publicado a producción. Lo prepara el skill <span class="inline">release</span> como PR de <span class="inline">develop</span> a <span class="inline">main</span> agrupando los códigos ya numerados en las tareas (el release no crea código nuevo).</p></div>
+      <div class="flowbox"><h4>Tipo y Ticket (cuerpo del commit)</h4><p>Líneas del cuerpo del mensaje que clasifican el cambio: <span class="inline">Tipo: requerimiento</span> o <span class="inline">Tipo: soporte</span>, y <span class="inline">Ticket: ERP-101</span>. Las generan los skills desde la rama (<span class="inline">feature/</span> o <span class="inline">fix/</span>); los PRs y el release las leen para clasificar.</p></div>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>Ramas y reglas del ERP</h3>
+    <div class="grid2">
+      <div class="flowbox"><h4>main</h4><p>Rama de producción: lo que hay aquí es lo que usa el cliente. Solo los Gestores fusionan. Pase Producción descarga desde aquí.</p></div>
+      <div class="flowbox"><h4>develop</h4><p>Rama de integración: a donde llegan todos los requerimientos y soportes por PR. Cualquier desarrollador puede fusionar aquí.</p></div>
+      <div class="flowbox"><h4>qa</h4><p>Rama de pruebas: lo que el equipo QA va a probar antes del release. Solo QA fusiona aquí.</p></div>
+      <div class="flowbox"><h4>feature/*</h4><p>Rama de requerimiento (nueva funcionalidad o mejora). Nace de <span class="inline">develop</span>. Ej.: <span class="inline">feature/erp-101-ruc-pedido-venta</span>.</p></div>
+      <div class="flowbox"><h4>fix/*</h4><p>Rama de soporte (corrección de error). Nace de <span class="inline">develop</span>. Ej.: <span class="inline">fix/erp-102-arqueo-caja-chica</span>.</p></div>
+      <div class="flowbox"><h4>Rama protegida</h4><p>Regla de GitHub que bloquea el push directo y restringe quién puede fusionar PRs en esa rama. Así se impide que un desarrollador publique en <span class="inline">main</span>. Ver sección 03.</p></div>
+      <div class="flowbox"><h4>Ticket (ERP-XXX)</h4><p>Identificador del requerimiento o soporte. Viaja en el nombre de la rama, en cada commit y en cada PR para rastrear el cambio de punta a punta.</p></div>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9l3 3 7-7"/></svg>Herramientas</h3>
+    <div class="grid2">
+      <div class="flowbox"><h4>Claude (Sonnet)</h4><p>Claude con modelo Sonnet, ejecutado en la terminal: analiza tu código, redacta commits y crea los PRs por ti siguiendo los skills. Los skills viven en la carpeta <span class="inline">.claude/skills</span> del repo y se cargan solos. Todo este manual asume ese modelo.</p></div>
+      <div class="flowbox"><h4>Skill</h4><p>Receta de instrucciones que le dice a Claude cómo hacer una tarea (crear la rama, commitear, promover, release), incluyendo pedirte confirmación.</p></div>
+      <div class="flowbox"><h4>gh (GitHub CLI)</h4><p>Programa de terminal para operar GitHub con comandos (crear PRs, verlos, fusionarlos). Los skills lo usan por dentro; se instala una sola vez. Ver INSTALAR.txt.</p></div>
+      <div class="flowbox"><h4>Documento de pase a producción</h4><p>Documento del equipo donde cada pase lleva su código correlativo (<span class="inline">TGE-PROD-20260907-000004</span>), los archivos y los scripts BD. Se genera en el aplicativo ANTES del commit (lee los cambios sin commitear con <span class="inline">git diff --name-only HEAD</span>); el código resultante es el título del commit y su tag. Pase Producción descarga usando ese código, sin necesitar saber de desarrollo.</p></div>
+      <div class="flowbox"><h4>Visual Studio</h4><p>Donde escribes el código C# del ERP. La rama activa se ve en la barra inferior; debe coincidir con tu <span class="inline">feature/</span> o <span class="inline">fix/</span>.</p></div>
+    </div>
+
+    <h3><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3 2.9-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.8 14.4c2.2.3 3.8 1.6 4.5 4.1"/></svg>Roles (resumen)</h3>
+    <div class="grid2">
+      <div class="flowbox"><h4>Desarrollador</h4><p>Crea ramas <span class="inline">feature/</span> y <span class="inline">fix/</span> y fusiona PRs en <span class="inline">develop</span>. Sin acceso a <span class="inline">main</span> ni <span class="inline">qa</span>.</p></div>
+      <div class="flowbox"><h4>Gestor / Aprobador</h4><p>Desarrollador con permiso extra: además fusiona los PRs de <span class="inline">develop</span> a <span class="inline">main</span> (Wilmer, Marlon, Jorge, Víctor).</p></div>
+      <div class="flowbox"><h4>QA</h4><p>Fusiona PRs en <span class="inline">qa</span> y prueba los cambios (Randy, Luis, Ronald). Sin acceso a <span class="inline">develop</span> ni <span class="inline">main</span>.</p></div>
+      <div class="flowbox"><h4>Pase Producción</h4><p>Descarga <span class="inline">main</span> y publica el ERP. No necesita escribir en el repositorio.</p></div>
+    </div>
+    <p class="muted">Detalle completo de integrantes en la sección 02.</p>
+  </section>
+
+  <footer>Flujo de Git del ERP · Manual interno del equipo de desarrollo · Versión 3.5<br><span class="muted">Formularios de ejemplo: frmPedidoVenta, frmSolicitudPago, frmCliente, frmProveedorLista, frmCajaChica.</span></footer>
+
+</main>
+</div>
+
+<div class="scroll-hint" id="scrollHint">desliza o pulsa ↓ para ver más contenido</div>
+<div class="slide-controls" id="slideControls">
+  <button id="slideExit"><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>Salir</button>
+  <button id="slidePrev" disabled><svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg>Anterior</button>
+  <span class="slide-count" id="slideCount">1 / 1</span>
+  <button id="slideNext">Siguiente<svg class="icon sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6l6 6-6 6"/></svg></button>
+  <span class="slide-hint">↓ desplaza · ← → cambia · Esc sale</span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var saved=null;try{saved=localStorage.getItem('erp-theme');}catch(e){}
+  var prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+  function apply(t){root.setAttribute('data-theme',t);}
+  apply(saved||(prefersDark?'dark':'light'));
+
+  var themeBtn=document.getElementById('themeBtn');
+  themeBtn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme')==='dark'?'light':'dark';
+    apply(cur);try{localStorage.setItem('erp-theme',cur);}catch(e){}
+  });
+
+  var slides=[];var idx=0;
+  var presentBtn=document.getElementById('presentBtn');
+  var prevBtn=document.getElementById('slidePrev');
+  var nextBtn=document.getElementById('slideNext');
+  var exitBtn=document.getElementById('slideExit');
+  var counter=document.getElementById('slideCount');
+  var bar=document.getElementById('progressBar');
+
+  function collect(){slides=Array.prototype.slice.call(document.querySelectorAll('main>section'));
+    slides.forEach(function(s){s.removeEventListener('scroll',updateHint);s.addEventListener('scroll',updateHint);});}
+  function updateHint(){var h=document.getElementById('scrollHint');if(!h)return;
+    var a=slides[idx];var more=a&&(a.scrollHeight-a.scrollTop-a.clientHeight>40);
+    h.classList.toggle('show',!!more);}
+  function show(){
+    slides.forEach(function(s,i){s.classList.toggle('slide-active',i===idx);});
+    counter.textContent=(idx+1)+' / '+slides.length;
+    if(bar)bar.style.width=((idx+1)/slides.length*100)+'%';
+    prevBtn.disabled=idx===0;
+    nextBtn.disabled=idx>=slides.length-1;
+    var active=slides[idx];if(active)active.scrollTop=0;
+    updateHint();
+  }
+  function enter(){collect();idx=0;document.body.classList.add('presenting');show();
+    try{var el=document.documentElement;if(el.requestFullscreen){var p=el.requestFullscreen();if(p&&p.catch)p.catch(function(){});}}catch(e){}}
+  function exit(){document.body.classList.remove('presenting');
+    slides.forEach(function(s){s.classList.remove('slide-active');});
+    try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen();}catch(e){}}
+
+  presentBtn.addEventListener('click',function(){
+    if(document.body.classList.contains('presenting'))exit();else enter();
+  });
+  exitBtn.addEventListener('click',exit);
+  prevBtn.addEventListener('click',function(){if(idx>0){idx--;show();}});
+  nextBtn.addEventListener('click',function(){if(idx<slides.length-1){idx++;show();}});
+
+  document.addEventListener('fullscreenchange',function(){
+    if(!document.fullscreenElement&&document.body.classList.contains('presenting'))exit();
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(!document.body.classList.contains('presenting'))return;
+    var tag=(e.target&&e.target.tagName)||'';
+    if(e.key===' '&&/BUTTON|INPUT|TEXTAREA|SELECT|A|SUMMARY/.test(tag))return;
+    var a=slides[idx];
+    var page=a?Math.round(a.clientHeight*0.85):0;
+    if(e.key==='ArrowDown'||e.key==='PageDown'||e.key===' '){
+      if(a&&a.scrollHeight>a.clientHeight+40&&(a.scrollHeight-a.scrollTop-a.clientHeight>40)){a.scrollTop+=page;updateHint();e.preventDefault();}
+      else if(idx<slides.length-1){idx++;show();}
+    }
+    else if(e.key==='ArrowUp'||e.key==='PageUp'){
+      if(a&&a.scrollTop>40){a.scrollTop-=page;updateHint();e.preventDefault();}
+      else if(idx>0){idx--;show();}
+    }
+    else if(e.key==='ArrowRight'){if(idx<slides.length-1){idx++;show();}}
+    else if(e.key==='ArrowLeft'){if(idx>0){idx--;show();}}
+    else if(e.key==='Escape'){exit();}
+  });
+
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){e.preventDefault();
+      var el=document.querySelector(a.getAttribute('href'));
+      if(el)el.scrollIntoView({behavior:'smooth'});
+    });
+  });
+})();
+</script>
+</body>
+</html>

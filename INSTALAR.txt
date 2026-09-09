@@ -1,0 +1,136 @@
+GUIA DE INSTALACION - FLUJO DE GIT PARA EL ERP
+===============================================
+
+CONTENIDO DE ESTA CARPETA
+-------------------------
+  .claude/settings.json                      -> permisos de Claude (git y gh)
+  .claude/skills/                            -> LOS 5 SKILLS (se copian tal cual)
+  .github/PULL_REQUEST_TEMPLATE.md           -> plantilla de Pull Request
+  github/proteccion-*.json                   -> reglas de proteccion de ramas
+  guia-flujo-git.html                        -> manual profesional + modo presentacion
+  crear-skills.ps1                           -> crea skills + settings pegandolo en terminal
+  SKILL-PLANTILLA.md                         -> plantilla para crear skills nuevos
+  PROMPTS-CONSTRUCTORES.md                   -> prompts para regenerar los 5 skills
+
+MODELO: CLAUDE SONNET (RECOMENDADO)
+-----------------------------------
+Todo el flujo esta pensado para ejecutarse con Claude Sonnet.
+En Claude, escribe el comando /model y elige Sonnet. Tambien puedes
+fijarlo con la variable de entorno ANTHROPIC_MODEL apuntando a tu
+modelo Sonnet disponible.
+
+PASO 1 - COPIAR LOS ARCHIVOS AL REPO DEL ERP
+--------------------------------------------
+Copiar a la RAIZ del repositorio del ERP en la maquina del trabajo:
+  - .claude\  (carpeta completa: settings.json + sus 5 skills)
+  - .github\PULL_REQUEST_TEMPLATE.md
+  - guia-flujo-git.html (fuera del repo si prefieres)
+
+ATAJO: en vez de copiar la carpeta .claude, abre una terminal PowerShell
+en la raiz del repo, copia TODO el contenido de crear-skills.ps1, pegalo
+y pulsa Enter. Los 4 skills y el settings.json se crean solos con su
+contenido exacto.
+
+Los skills se detectan automaticamente al abrir Claude dentro del repo.
+
+PASO 2 - INSTALAR GITHUB CLI (UNA SOLA VEZ)
+-------------------------------------------
+1) Descargar e instalar GitHub CLI:  https://cli.github.com
+2) Autenticarse en la terminal:
+     gh auth login
+   (seguir el flujo interactivo: "GitHub.com" -> HTTPS -> Login with a web browser)
+
+PASO 3 - CREAR LAS RAMAS INICIALES
+----------------------------------
+En la terminal, dentro del repo:
+     git checkout -b develop
+     git push -u origin develop
+     git checkout -b qa
+     git push -u origin qa
+     git checkout main
+     git pull
+
+Las ramas feature/ y fix/ las crea el skill nueva-tarea cuando hagan falta.
+
+PASO 4 - APLICAR LAS REGLAS DE PROTECCION (LO HACE EL ADMIN DEL REPO)
+----------------------------------------------------------------------
+Opcion A) Desde la web de GitHub (recomendado para empezar):
+   Settings -> Branches -> Add branch protection rule, para CADA rama:
+
+   * main
+     - Require a pull request before merging : ON
+     - Require approvals: 0 para empezar (puede subirse a 1 mas adelante)
+     - Restrict who can push to matching branches: ON
+       Usuarios autorizados: los gestores (Wilmer Moscol, Marlon Garcia,
+       Jorge Salas, Victor Roldan) por su usuario de GitHub
+     - Enforce admins: ON
+
+   * qa
+     - Require a pull request before merging : ON
+     - Restrict who can push to matching branches: ON
+       Usuarios autorizados: el equipo QA (Randy Correa, Luis Castro,
+       Ronald Salazar) por su usuario de GitHub
+     - Enforce admins: ON
+
+   * develop
+     - Require a pull request before merging : ON
+     - No activar "Restrict who can push" (cualquier desarrollador fusiona ahi)
+
+Opcion B) Con comandos (requiere que el admin tenga gh autenticado): primero
+editar los archivos proteccion-*.json y reemplazar APROBADOR_GITHUB_USER por los
+usuarios de los gestores (Wilmer Moscol, Marlon Garcia, Jorge Salas, Victor
+Roldan) y QA_USUARIO_* por los usuarios de QA (Randy Correa, Luis Castro,
+Ronald Salazar), luego:
+
+   gh api -X PUT repos/ORG/REPO/branches/main/protection \
+     --input proteccion-main.json -H "Accept: application/vnd.github+json"
+   gh api -X PUT repos/ORG/REPO/branches/develop/protection \
+     --input proteccion-develop.json -H "Accept: application/vnd.github+json"
+   gh api -X PUT repos/ORG/REPO/branches/qa/protection \
+     --input proteccion-qa.json -H "Accept: application/vnd.github+json"
+
+Con esto un desarrollador NO puede pushear ni fusionar en main ni en qa,
+aunque tenga permiso de escritura en el repo.
+
+PASO 5 - PERMISOS DE LOS USUARIOS EN EL REPO
+--------------------------------------------
+Settings -> Collaborators (o Teams):
+  - Desarrolladores (Isaac Vargas, Jan Morales, Cristian Polo, Luis Barreto,
+    y los gestores Wilmer Moscol, Marlon Garcia, Jorge Salas, Victor Roldan): Write
+  - QA (Randy Correa, Luis Castro, Ronald Salazar)           : Write
+  - Pase Produccion (Publicador)                             : Read
+    (solo descarga main y publica; no necesita escribir)
+
+ROLES DE TRABAJO (resumen)
+--------------------------
+  - Desarrolladores: crean feature/* y fix/* desde develop.
+  - Gestores (Aprobadores): ademas de desarrollar, fusionan PRs de develop -> main.
+  - QA: fusiona PRs hacia qa (solo ellos) y prueba en el ambiente QA.
+  - Pase Produccion: descarga de main y publica.
+
+PASO 6 - PRUEBA RAPIDA DEL FLUJO COMPLETO
+-----------------------------------------
+Dentro de Claude, en la carpeta del repo, probar:
+  1) "nueva tarea para el requerimiento erp-999 prueba"       -> crea feature/erp-999-prueba
+  2) hacer un cambio cualquiera en el codigo
+  3) armar el documento en el aplicativo (lee los cambios sin
+     commitear con git diff --name-only HEAD)                 -> obtienes el codigo TGE-PROD-...
+  4) "tengo el codigo TGE-PROD-..."                           -> commit con titulo = codigo + tag local
+  5) "promueve el requerimiento erp-999 a develop"             -> push de rama + tag y PR con el codigo
+  6) fusionar el PR en la web (o gh pr merge <numero> --merge)
+  7) "crea el release a main" (el aprobador)                  -> PR Release <fecha> (N pases) agrupando codigos;
+     tras fusionar verifica que los tags quedaron en main
+  8) el publicador: "que hay nuevo en main"                   -> ve los pases pendientes
+  9) el publicador: "descarga la TGE-PROD-..." (codigo del doc)-> confirma y descarga ese codigo
+  10) el publicador compila y despliega desde su carpeta
+
+NOTA OPCIONAL - HOTFIX URGENTE (A FUTURO)
+-----------------------------------------
+Si un soporte es URGENTE y no puede esperar a develop/qa, Git Flow sugiere
+ramas hotfix/ que parten de main y se fusionan directo a main. No estaba en
+el alcance original; se agrega mas adelante sin romper nada si lo necesitan.
+
+RECORDATORIO
+------------
+Despues de instalar settings.json o cualquier skill nuevo, reiniciar Claude
+para que cargue la configuracion actualizada.
